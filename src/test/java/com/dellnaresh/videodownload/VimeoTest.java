@@ -1,9 +1,14 @@
 package com.dellnaresh.videodownload;
 
-public class VimeoTest extends AppManagedDownload {
+import org.junit.Test;
 
-    public static void main(String[] args) {
-        AppManagedDownload.main(new String[] { "http://vimeo.com/86057443", "/Users/axet/Downloads" });
+import java.io.File;
+
+public class VimeoTest extends AppManagedDownloadTest {
+    @Test
+    public void testVimeoDownload() throws Exception {
+        AppManagedDownloadTest e = new AppManagedDownloadTest();
+        e.run(vimeoUrl, new File(path));
     }
 
 }

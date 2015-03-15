@@ -1,9 +1,15 @@
 package com.dellnaresh.videodownload;
 
-public class YouTubeTest extends AppManagedDownload {
+import org.junit.Test;
 
-    public static void main(String[] args) {
-        AppManagedDownload.main(new String[] { "https://www.youtube.com/watch?v=OV8lsIO9qmI", "C:\\Users\\nareshm\\Videos\\Naresh Downloads\\Java" });
+import java.io.File;
+
+public class YouTubeTest extends AppManagedDownloadTest {
+
+    @Test
+    public void testDownload() throws Exception {
+        AppManagedDownloadTest e = new AppManagedDownloadTest();
+        e.run(url, new File(path));
     }
 
 }
