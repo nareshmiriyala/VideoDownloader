@@ -3,6 +3,7 @@ package com.dellnaresh.videodownload;
 import com.dellnaresh.videodownload.config.ConfigReader;
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
+import com.dellnaresh.videodownload.vhs.YouTubeQParser;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.github.axet.wget.info.DownloadInfo.Part.States;
@@ -83,7 +84,7 @@ public class AppManagedDownloadTest {
             // create simple youtube request
             //user = new YouTubeParser(info.getWeb());
             // download maximum video quality
-            //user = new YouTubeQParser(info.getWeb(), VideoQuality.p480);
+            user = new YouTubeQParser(info.getWeb(), VideoInfo.VideoQuality.p360);
             // download non webm only
             //user = new YouTubeMPGParser(info.getWeb(), VideoQuality.p480);
 
