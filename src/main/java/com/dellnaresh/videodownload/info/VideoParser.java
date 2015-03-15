@@ -30,11 +30,7 @@ public abstract class VideoParser {
 
         Collections.sort(sNextVideoURL, new VideoContentFirst());
 
-        for (int i = 0; i < sNextVideoURL.size(); i++) {
-            VideoDownload v = sNextVideoURL.get(i);
-
-            boolean found = true;
-
+        for (VideoDownload v : sNextVideoURL) {
             vinfo.setVideoQuality(v.vq);
             DownloadInfo info = new DownloadInfo(v.url);
             vinfo.setInfo(info);

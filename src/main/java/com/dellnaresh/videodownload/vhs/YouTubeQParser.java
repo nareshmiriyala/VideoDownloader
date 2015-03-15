@@ -1,14 +1,14 @@
 package com.dellnaresh.videodownload.vhs;
 
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.ex.DownloadError;
 import com.github.axet.wget.info.ex.DownloadRetry;
+
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class YouTubeQParser extends YouTubeParser {
 
@@ -35,9 +35,7 @@ public class YouTubeQParser extends YouTubeParser {
 
         Collections.sort(sNextVideoURL, new VideoContentFirst());
 
-        for (int i = 0; i < sNextVideoURL.size(); i++) {
-            VideoDownload v = sNextVideoURL.get(i);
-
+        for (VideoDownload v : sNextVideoURL) {
             boolean found = true;
 
             found &= q.equals(v.vq);

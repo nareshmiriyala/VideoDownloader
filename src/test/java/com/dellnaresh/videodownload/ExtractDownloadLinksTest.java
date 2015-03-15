@@ -32,10 +32,7 @@ public class ExtractDownloadLinksTest {
 
             YouTubeParser parser = new YouTubeParser(info.getWeb());
 
-            List<VideoParser.VideoDownload> list = parser.extractLinks(info, new AtomicBoolean(), new Runnable() {
-                @Override
-                public void run() {
-                }
+            List<VideoParser.VideoDownload> list = parser.extractLinks(info, new AtomicBoolean(), () -> {
             });
 
             for (VideoParser.VideoDownload d : list) {

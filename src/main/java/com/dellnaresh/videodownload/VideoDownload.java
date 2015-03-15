@@ -1,29 +1,19 @@
 package com.dellnaresh.videodownload;
 
+import com.dellnaresh.videodownload.info.VideoInfo;
+import com.dellnaresh.videodownload.info.VideoParser;
+import com.github.axet.wget.*;
+import com.github.axet.wget.info.DownloadInfo;
+import com.github.axet.wget.info.DownloadInfo.Part;
+import com.github.axet.wget.info.ex.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.dellnaresh.videodownload.info.VideoParser;
-import com.dellnaresh.videodownload.info.VideoInfo;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import com.github.axet.wget.Direct;
-import com.github.axet.wget.DirectMultipart;
-import com.github.axet.wget.DirectRange;
-import com.github.axet.wget.DirectSingle;
-import com.github.axet.wget.RetryWrap;
-import com.github.axet.wget.info.DownloadInfo;
-import com.github.axet.wget.info.DownloadInfo.Part;
-import com.github.axet.wget.info.ex.DownloadError;
-import com.github.axet.wget.info.ex.DownloadIOCodeError;
-import com.github.axet.wget.info.ex.DownloadIOError;
-import com.github.axet.wget.info.ex.DownloadInterruptedError;
-import com.github.axet.wget.info.ex.DownloadMultipartError;
-import com.github.axet.wget.info.ex.DownloadRetry;
 
 public class VideoDownload {
 
@@ -52,48 +42,10 @@ public class VideoDownload {
         this.targetDir = targetDir;
     }
 
-    public void setTarget(File file) {
-        targetForce = file;
-    }
-
-    public void setTargetDir(File targetDir) {
-        this.targetDir = targetDir;
-    }
-
-    /**
-     * get output file on local file system
-     * 
-     * @return
-     */
-    public File getTarget() {
-        return targetFile;
-    }
-
-    public VideoInfo getVideo() {
-        return info;
-    }
-
-    public void download() {
-        download(null, new AtomicBoolean(false), new Runnable() {
-            @Override
-            public void run() {
-            }
-        });
-    }
-
-    public void download(VideoParser user) {
-        download(user, new AtomicBoolean(false), new Runnable() {
-            @Override
-            public void run() {
-            }
-        });
-    }
-
     /**
      * Drop all foribiden characters from filename
-     * 
-     * @param f
-     *            input file name
+     *
+     * @param f input file name
      * @return normalized file name
      */
     static String replaceBadChars(String f) {
@@ -124,6 +76,37 @@ public class VideoDownload {
         if (str.length() > max)
             str = str.substring(0, max);
         return str;
+    }
+
+    public void setTargetDir(File targetDir) {
+        this.targetDir = targetDir;
+    }
+
+    /**
+     * get output file on local file system
+     *
+     * @return
+     */
+    public File getTarget() {
+        return targetFile;
+    }
+
+    public void setTarget(File file) {
+        targetForce = file;
+    }
+
+    public VideoInfo getVideo() {
+        return info;
+    }
+
+    public void download() {
+        download(null, new AtomicBoolean(false), () -> {
+        });
+    }
+
+    public void download(VideoParser user) {
+        download(user, new AtomicBoolean(false), () -> {
+        });
     }
 
     boolean done(AtomicBoolean stop) {
@@ -263,10 +246,7 @@ public class VideoDownload {
     }
 
     public void extract() {
-        extract(new AtomicBoolean(false), new Runnable() {
-            @Override
-            public void run() {
-            }
+        extract(new AtomicBoolean(false), () -> {
         });
     }
 
@@ -290,7 +270,7 @@ public class VideoDownload {
                     notify.run();
                 }
                 return;
-            } catch (DownloadRetry e) {
+            } catch (DownloadRetry | DownloadIOError e) {
                 retry(user, stop, notify, e);
             } catch (DownloadMultipartError e) {
                 checkFileNotFound(e);
@@ -301,8 +281,6 @@ public class VideoDownload {
                     retry(user, stop, notify, e);
                 else
                     throw e;
-            } catch (DownloadIOError e) {
-                retry(user, stop, notify, e);
             }
         }
     }
@@ -394,10 +372,8 @@ public class VideoDownload {
                         direct = new DirectSingle(dinfo, targetFile);
                     }
 
-                    direct.download(stop, new Runnable() {
-                        @Override
-                        public void run() {
-                            switch (dinfo.getState()) {
+                    direct.download(stop, () -> {
+                        switch (dinfo.getState()) {
                             case DOWNLOADING:
                                 info.setState(VideoInfo.States.DOWNLOADING);
                                 notify.run();
@@ -411,7 +387,6 @@ public class VideoDownload {
                                 // already
                                 // pased, STOP / ERROR / DONE i will catch up
                                 // here
-                            }
                         }
                     });
 
@@ -420,7 +395,7 @@ public class VideoDownload {
 
                     // break while()
                     return;
-                } catch (DownloadRetry e) {
+                } catch (DownloadRetry | DownloadIOError e) {
                     retry(user, stop, notify, e);
                 } catch (DownloadMultipartError e) {
                     checkFileNotFound(e);
@@ -431,8 +406,6 @@ public class VideoDownload {
                         retry(user, stop, notify, e);
                     else
                         throw e;
-                } catch (DownloadIOError e) {
-                    retry(user, stop, notify, e);
                 }
             }
         } catch (DownloadInterruptedError e) {

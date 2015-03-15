@@ -1,10 +1,15 @@
 package com.dellnaresh.videodownload.vhs;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
+import com.dellnaresh.videodownload.info.VideoInfo;
+import com.dellnaresh.videodownload.info.VideoParser;
+import com.github.axet.wget.WGet;
+import com.github.axet.wget.info.ex.DownloadError;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,135 +18,37 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.dellnaresh.videodownload.info.VideoParser;
-import com.dellnaresh.videodownload.info.VideoInfo;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-
-import com.github.axet.wget.WGet;
-import com.github.axet.wget.info.ex.DownloadError;
-
 public class YouTubeParser extends VideoParser {
 
     final static String UTF8 = "UTF-8";
+    static final Map<Integer, VideoInfo.VideoQuality> itagMap = new HashMap<Integer, VideoInfo.VideoQuality>() {
+        private static final long serialVersionUID = -6925194111122038477L;
 
-    static class DecryptSignature {
-        String sig;
-
-        public DecryptSignature(String signature) {
-            this.sig = signature;
+        {
+            put(120, VideoInfo.VideoQuality.p720); // flv
+            put(102, VideoInfo.VideoQuality.p720); // webm
+            put(101, VideoInfo.VideoQuality.p360); // webm
+            put(100, VideoInfo.VideoQuality.p360); // webm
+            put(85, VideoInfo.VideoQuality.p520); // mp4
+            put(84, VideoInfo.VideoQuality.p720); // mp4
+            put(83, VideoInfo.VideoQuality.p240); // mp4
+            put(82, VideoInfo.VideoQuality.p360); // mp4
+            put(46, VideoInfo.VideoQuality.p1080); // webm
+            put(45, VideoInfo.VideoQuality.p720); // webm
+            put(44, VideoInfo.VideoQuality.p480); // webm
+            put(43, VideoInfo.VideoQuality.p360); // webm
+            put(38, VideoInfo.VideoQuality.p3072); // mp4
+            put(37, VideoInfo.VideoQuality.p1080); // mp4
+            put(36, VideoInfo.VideoQuality.p240); // 3gp
+            put(35, VideoInfo.VideoQuality.p480); // flv
+            put(34, VideoInfo.VideoQuality.p360); // flv
+            put(22, VideoInfo.VideoQuality.p720); // mp4
+            put(18, VideoInfo.VideoQuality.p360); // mp4
+            put(17, VideoInfo.VideoQuality.p144); // 3gp
+            put(6, VideoInfo.VideoQuality.p270); // flv
+            put(5, VideoInfo.VideoQuality.p240); // flv
         }
-
-        String s(int b, int e) {
-            return sig.substring(b, e);
-        }
-
-        String s(int b) {
-            return sig.substring(b, b + 1);
-        }
-
-        String se(int b) {
-            return s(b, sig.length());
-        }
-
-        String s(int b, int e, int step) {
-            String str = "";
-
-            while (b != e) {
-                str += sig.charAt(b);
-                b += step;
-            }
-            return str;
-        }
-
-        // https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py
-        String decrypt() {
-            switch (sig.length()) {
-            case 93:
-                return s(86, 29, -1) + s(88) + s(28, 5, -1);
-            case 92:
-                return s(25) + s(3, 25) + s(0) + s(26, 42) + s(79) + s(43, 79) + s(91) + s(80, 83);
-            case 91:
-                return s(84, 27, -1) + s(86) + s(26, 5, -1);
-            case 90:
-                return s(25) + s(3, 25) + s(2) + s(26, 40) + s(77) + s(41, 77) + s(89) + s(78, 81);
-            case 89:
-                return s(84, 78, -1) + s(87) + s(77, 60, -1) + s(0) + s(59, 3, -1);
-            case 88:
-                return s(7, 28) + s(87) + s(29, 45) + s(55) + s(46, 55) + s(2) + s(56, 87) + s(28);
-            case 87:
-                return s(6, 27) + s(4) + s(28, 39) + s(27) + s(40, 59) + s(2) + se(60);
-            case 86:
-                return s(80, 72, -1) + s(16) + s(71, 39, -1) + s(72) + s(38, 16, -1) + s(82) + s(15, 0, -1);
-            case 85:
-                return s(3, 11) + s(0) + s(12, 55) + s(84) + s(56, 84);
-            case 84:
-                return s(78, 70, -1) + s(14) + s(69, 37, -1) + s(70) + s(36, 14, -1) + s(80) + s(0, 14, -1);
-            case 83:
-                return s(80, 63, -1) + s(0) + s(62, 0, -1) + s(63);
-            case 82:
-                return s(80, 37, -1) + s(7) + s(36, 7, -1) + s(0) + s(6, 0, -1) + s(37);
-            case 81:
-                return s(56) + s(79, 56, -1) + s(41) + s(55, 41, -1) + s(80) + s(40, 34, -1) + s(0) + s(33, 29, -1)
-                        + s(34) + s(28, 9, -1) + s(29) + s(8, 0, -1) + s(9);
-            case 80:
-                return s(1, 19) + s(0) + s(20, 68) + s(19) + s(69, 80);
-            case 79:
-                return s(54) + s(77, 54, -1) + s(39) + s(53, 39, -1) + s(78) + s(38, 34, -1) + s(0) + s(33, 29, -1)
-                        + s(34) + s(28, 9, -1) + s(29) + s(8, 0, -1) + s(9);
-            }
-
-            throw new RuntimeException("Unable to decrypt signature, key length " + sig.length()
-                    + " not supported; retrying might work");
-        }
-    }
-
-    public static class VideoUnavailablePlayer extends DownloadError {
-        private static final long serialVersionUID = 10905065542230199L;
-
-        public VideoUnavailablePlayer() {
-            super("unavailable-player");
-        }
-    }
-
-    public static class AgeException extends DownloadError {
-        private static final long serialVersionUID = 1L;
-
-        public AgeException() {
-            super("Age restriction, account required");
-        }
-    }
-
-    public static class PrivateVideoException extends DownloadError {
-        private static final long serialVersionUID = 1L;
-
-        public PrivateVideoException() {
-            super("Private video");
-        }
-
-        public PrivateVideoException(String s) {
-            super(s);
-        }
-    }
-
-    public static class EmbeddingDisabled extends DownloadError {
-        private static final long serialVersionUID = 1L;
-
-        public EmbeddingDisabled(String msg) {
-            super(msg);
-        }
-    }
-
-    public static class VideoDeleted extends DownloadError {
-        private static final long serialVersionUID = 1L;
-
-        public VideoDeleted(String msg) {
-            super(msg);
-        }
-    }
-
+    };
     URL source;
 
     public YouTubeParser(URL input) {
@@ -150,6 +57,39 @@ public class YouTubeParser extends VideoParser {
 
     public static boolean probe(URL url) {
         return url.toString().contains("youtube.com");
+    }
+
+    public static String extractId(URL url) {
+        {
+            Pattern u = Pattern.compile("youtube.com/watch?.*v=([^&]*)");
+            Matcher um = u.matcher(url.toString());
+            if (um.find())
+                return um.group(1);
+        }
+
+        {
+            Pattern u = Pattern.compile("youtube.com/v/([^&]*)");
+            Matcher um = u.matcher(url.toString());
+            if (um.find())
+                return um.group(1);
+        }
+
+        return null;
+    }
+
+    public static Map<String, String> getQueryMap(String qs) {
+        try {
+            qs = qs.trim();
+            List<NameValuePair> list;
+            list = URLEncodedUtils.parse(new URI(null, null, null, -1, null, qs, null), UTF8);
+            HashMap<String, String> map = new HashMap<>();
+            for (NameValuePair p : list) {
+                map.put(p.getName(), p.getValue());
+            }
+            return map;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(qs, e);
+        }
     }
 
     @Override
@@ -169,7 +109,7 @@ public class YouTubeParser extends VideoParser {
 
     /**
      * do not allow to download age restricted videos
-     * 
+     *
      * @param info
      * @param stop
      * @param notify
@@ -177,7 +117,7 @@ public class YouTubeParser extends VideoParser {
      */
     List<VideoDownload> streamCpature(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        List<VideoDownload> sNextVideoURL = new ArrayList<VideoDownload>();
+        List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String html;
         html = WGet.getHtml(info.getWeb(), new WGet.HtmlLoader() {
@@ -207,9 +147,8 @@ public class YouTubeParser extends VideoParser {
 
     /**
      * Add resolution video for specific youtube link.
-     * 
-     * @param url
-     *            download source url
+     *
+     * @param url download source url
      * @throws MalformedURLException
      */
     void addVideo(List<VideoDownload> sNextVideoURL, String itag, URL url) {
@@ -219,57 +158,9 @@ public class YouTubeParser extends VideoParser {
         sNextVideoURL.add(new VideoDownload(vd, url));
     }
 
-    // http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
-
-    static final Map<Integer, VideoInfo.VideoQuality> itagMap = new HashMap<Integer, VideoInfo.VideoQuality>() {
-        private static final long serialVersionUID = -6925194111122038477L;
-        {
-            put(120, VideoInfo.VideoQuality.p720); // flv
-            put(102, VideoInfo.VideoQuality.p720); // webm
-            put(101, VideoInfo.VideoQuality.p360); // webm
-            put(100, VideoInfo.VideoQuality.p360); // webm
-            put(85, VideoInfo.VideoQuality.p520); // mp4
-            put(84, VideoInfo.VideoQuality.p720); // mp4
-            put(83, VideoInfo.VideoQuality.p240); // mp4
-            put(82, VideoInfo.VideoQuality.p360); // mp4
-            put(46, VideoInfo.VideoQuality.p1080); // webm
-            put(45, VideoInfo.VideoQuality.p720); // webm
-            put(44, VideoInfo.VideoQuality.p480); // webm
-            put(43, VideoInfo.VideoQuality.p360); // webm
-            put(38, VideoInfo.VideoQuality.p3072); // mp4
-            put(37, VideoInfo.VideoQuality.p1080); // mp4
-            put(36, VideoInfo.VideoQuality.p240); // 3gp
-            put(35, VideoInfo.VideoQuality.p480); // flv
-            put(34, VideoInfo.VideoQuality.p360); // flv
-            put(22, VideoInfo.VideoQuality.p720); // mp4
-            put(18, VideoInfo.VideoQuality.p360); // mp4
-            put(17, VideoInfo.VideoQuality.p144); // 3gp
-            put(6, VideoInfo.VideoQuality.p270); // flv
-            put(5, VideoInfo.VideoQuality.p240); // flv
-        }
-    };
-
-    public static String extractId(URL url) {
-        {
-            Pattern u = Pattern.compile("youtube.com/watch?.*v=([^&]*)");
-            Matcher um = u.matcher(url.toString());
-            if (um.find())
-                return um.group(1);
-        }
-
-        {
-            Pattern u = Pattern.compile("youtube.com/v/([^&]*)");
-            Matcher um = u.matcher(url.toString());
-            if (um.find())
-                return um.group(1);
-        }
-
-        return null;
-    }
-
     /**
      * allows to download age restricted videos
-     * 
+     *
      * @param info
      * @param stop
      * @param notify
@@ -277,7 +168,7 @@ public class YouTubeParser extends VideoParser {
      */
     List<VideoDownload> extractEmbedded(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        List<VideoDownload> sNextVideoURL = new ArrayList<VideoDownload>();
+        List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String id = extractId(source);
         if (id == null) {
@@ -356,23 +247,8 @@ public class YouTubeParser extends VideoParser {
         }
     }
 
-    public static Map<String, String> getQueryMap(String qs) {
-        try {
-            qs = qs.trim();
-            List<NameValuePair> list;
-            list = URLEncodedUtils.parse(new URI(null, null, null, -1, null, qs, null), UTF8);
-            HashMap<String, String> map = new HashMap<String, String>();
-            for (NameValuePair p : list) {
-                map.put(p.getName(), p.getValue());
-            }
-            return map;
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(qs, e);
-        }
-    }
-
     void extractHtmlInfo(List<VideoDownload> sNextVideoURL, VideoInfo info, String html, AtomicBoolean stop,
-            Runnable notify) throws Exception {
+                         Runnable notify) throws Exception {
         {
             Pattern age = Pattern.compile("(verify_age)");
             Matcher ageMatch = age.matcher(html);
@@ -446,6 +322,8 @@ public class YouTubeParser extends VideoParser {
         }
     }
 
+    // http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+
     void extractUrlEncodedVideos(List<VideoDownload> sNextVideoURL, String sline) throws Exception {
         String[] urlStrings = sline.split("url=");
 
@@ -509,12 +387,126 @@ public class YouTubeParser extends VideoParser {
                         url += "&signature=" + sig;
 
                         addVideo(sNextVideoURL, itag, new URL(url));
-                        continue;
                     } catch (MalformedURLException e) {
                         // ignore bad urls
                     }
                 }
             }
+        }
+    }
+
+    static class DecryptSignature {
+        String sig;
+
+        public DecryptSignature(String signature) {
+            this.sig = signature;
+        }
+
+        String s(int b, int e) {
+            return sig.substring(b, e);
+        }
+
+        String s(int b) {
+            return sig.substring(b, b + 1);
+        }
+
+        String se(int b) {
+            return s(b, sig.length());
+        }
+
+        String s(int b, int e, int step) {
+            String str = "";
+
+            while (b != e) {
+                str += sig.charAt(b);
+                b += step;
+            }
+            return str;
+        }
+
+        // https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py
+        String decrypt() {
+            switch (sig.length()) {
+                case 93:
+                    return s(86, 29, -1) + s(88) + s(28, 5, -1);
+                case 92:
+                    return s(25) + s(3, 25) + s(0) + s(26, 42) + s(79) + s(43, 79) + s(91) + s(80, 83);
+                case 91:
+                    return s(84, 27, -1) + s(86) + s(26, 5, -1);
+                case 90:
+                    return s(25) + s(3, 25) + s(2) + s(26, 40) + s(77) + s(41, 77) + s(89) + s(78, 81);
+                case 89:
+                    return s(84, 78, -1) + s(87) + s(77, 60, -1) + s(0) + s(59, 3, -1);
+                case 88:
+                    return s(7, 28) + s(87) + s(29, 45) + s(55) + s(46, 55) + s(2) + s(56, 87) + s(28);
+                case 87:
+                    return s(6, 27) + s(4) + s(28, 39) + s(27) + s(40, 59) + s(2) + se(60);
+                case 86:
+                    return s(80, 72, -1) + s(16) + s(71, 39, -1) + s(72) + s(38, 16, -1) + s(82) + s(15, 0, -1);
+                case 85:
+                    return s(3, 11) + s(0) + s(12, 55) + s(84) + s(56, 84);
+                case 84:
+                    return s(78, 70, -1) + s(14) + s(69, 37, -1) + s(70) + s(36, 14, -1) + s(80) + s(0, 14, -1);
+                case 83:
+                    return s(80, 63, -1) + s(0) + s(62, 0, -1) + s(63);
+                case 82:
+                    return s(80, 37, -1) + s(7) + s(36, 7, -1) + s(0) + s(6, 0, -1) + s(37);
+                case 81:
+                    return s(56) + s(79, 56, -1) + s(41) + s(55, 41, -1) + s(80) + s(40, 34, -1) + s(0) + s(33, 29, -1)
+                            + s(34) + s(28, 9, -1) + s(29) + s(8, 0, -1) + s(9);
+                case 80:
+                    return s(1, 19) + s(0) + s(20, 68) + s(19) + s(69, 80);
+                case 79:
+                    return s(54) + s(77, 54, -1) + s(39) + s(53, 39, -1) + s(78) + s(38, 34, -1) + s(0) + s(33, 29, -1)
+                            + s(34) + s(28, 9, -1) + s(29) + s(8, 0, -1) + s(9);
+            }
+
+            throw new RuntimeException("Unable to decrypt signature, key length " + sig.length()
+                    + " not supported; retrying might work");
+        }
+    }
+
+    public static class VideoUnavailablePlayer extends DownloadError {
+        private static final long serialVersionUID = 10905065542230199L;
+
+        public VideoUnavailablePlayer() {
+            super("unavailable-player");
+        }
+    }
+
+    public static class AgeException extends DownloadError {
+        private static final long serialVersionUID = 1L;
+
+        public AgeException() {
+            super("Age restriction, account required");
+        }
+    }
+
+    public static class PrivateVideoException extends DownloadError {
+        private static final long serialVersionUID = 1L;
+
+        public PrivateVideoException() {
+            super("Private video");
+        }
+
+        public PrivateVideoException(String s) {
+            super(s);
+        }
+    }
+
+    public static class EmbeddingDisabled extends DownloadError {
+        private static final long serialVersionUID = 1L;
+
+        public EmbeddingDisabled(String msg) {
+            super(msg);
+        }
+    }
+
+    public static class VideoDeleted extends DownloadError {
+        private static final long serialVersionUID = 1L;
+
+        public VideoDeleted(String msg) {
+            super(msg);
         }
     }
 }

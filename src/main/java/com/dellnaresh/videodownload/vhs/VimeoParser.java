@@ -1,5 +1,13 @@
 package com.dellnaresh.videodownload.vhs;
 
+import com.dellnaresh.videodownload.info.VideoInfo;
+import com.dellnaresh.videodownload.info.VideoParser;
+import com.github.axet.wget.WGet;
+import com.github.axet.wget.WGet.HtmlLoader;
+import com.github.axet.wget.info.ex.DownloadError;
+import com.google.gson.Gson;
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,55 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.dellnaresh.videodownload.info.VideoInfo;
-import org.apache.commons.lang3.StringEscapeUtils;
-
-import com.dellnaresh.videodownload.info.VideoParser;
-import com.github.axet.wget.WGet;
-import com.github.axet.wget.WGet.HtmlLoader;
-import com.github.axet.wget.info.ex.DownloadError;
-import com.google.gson.Gson;
-
 public class VimeoParser extends VideoParser {
 
     URL source;
-
-    public static class VimeoData {
-        public VimeoRequest request;
-        public VimeoVideo video;
-    }
-
-    public static class VimeoVideo {
-        public Map<String, String> thumbs;
-        public String title;
-    }
-
-    public static class VimeoRequest {
-        public String signature;
-        public String session;
-        public long timestamp;
-        public long expires;
-        public VimeoFiles files;
-    }
-
-    public static class VimeoFiles {
-        public ArrayList<String> codecs;
-        public VidemoCodec h264;
-    }
-
-    public static class VidemoCodec {
-        public VideoDownloadLink hd;
-        public VideoDownloadLink sd;
-        public VideoDownloadLink mobile;
-    }
-
-    public static class VideoDownloadLink {
-        public String url;
-        public int height;
-        public int width;
-        public String id;
-        public int bitrate;
-    }
 
     public VimeoParser(URL input) {
         this.source = input;
@@ -91,7 +53,7 @@ public class VimeoParser extends VideoParser {
 
     @Override
     public List<VideoDownload> extractLinks(final VideoInfo info, final AtomicBoolean stop, final Runnable notify) {
-        List<VideoDownload> list = new ArrayList<VideoParser.VideoDownload>();
+        List<VideoDownload> list = new ArrayList<>();
 
         try {
             String id;
@@ -174,6 +136,43 @@ public class VimeoParser extends VideoParser {
         }
 
         return list;
+    }
+
+    public static class VimeoData {
+        public VimeoRequest request;
+        public VimeoVideo video;
+    }
+
+    public static class VimeoVideo {
+        public Map<String, String> thumbs;
+        public String title;
+    }
+
+    public static class VimeoRequest {
+        public String signature;
+        public String session;
+        public long timestamp;
+        public long expires;
+        public VimeoFiles files;
+    }
+
+    public static class VimeoFiles {
+        public ArrayList<String> codecs;
+        public VidemoCodec h264;
+    }
+
+    public static class VidemoCodec {
+        public VideoDownloadLink hd;
+        public VideoDownloadLink sd;
+        public VideoDownloadLink mobile;
+    }
+
+    public static class VideoDownloadLink {
+        public String url;
+        public int height;
+        public int width;
+        public String id;
+        public int bitrate;
     }
 
 }
