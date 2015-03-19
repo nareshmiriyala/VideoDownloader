@@ -27,8 +27,11 @@ public class AppManagedDownloadTest {
     public void run(String url, File path) {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
-            Runnable notify = () -> {
-                VideoInfo i1 = info;
+            Runnable notify = new Runnable() {
+
+                @Override
+                public void run() {
+                     VideoInfo i1 = info;
                 DownloadInfo i2 = i1.getInfo();
 
                 // notify app or save download state
@@ -67,7 +70,8 @@ public class AppManagedDownloadTest {
                     default:
                         break;
                 }
-            };
+                }
+            } ;
 
             info = new VideoInfo(new URL(url));
 

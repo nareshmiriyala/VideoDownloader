@@ -99,13 +99,19 @@ public class VideoDownload {
         return info;
     }
 
-    public void download() {
-        download(null, new AtomicBoolean(false), () -> {
+   public void download() {
+        download(null, new AtomicBoolean(false), new Runnable() {
+            @Override
+            public void run() {
+            }
         });
     }
 
     public void download(VideoParser user) {
-        download(user, new AtomicBoolean(false), () -> {
+        download(user, new AtomicBoolean(false), new Runnable() {
+            @Override
+            public void run() {
+            }
         });
     }
 
@@ -245,8 +251,11 @@ public class VideoDownload {
         return getVideo().empty();
     }
 
-    public void extract() {
-        extract(new AtomicBoolean(false), () -> {
+   public void extract() {
+        extract(new AtomicBoolean(false), new Runnable() {
+            @Override
+            public void run() {
+            }
         });
     }
 
@@ -372,8 +381,10 @@ public class VideoDownload {
                         direct = new DirectSingle(dinfo, targetFile);
                     }
 
-                    direct.download(stop, () -> {
-                        switch (dinfo.getState()) {
+                    direct.download(stop, new Runnable() {
+                        @Override
+                        public void run() {
+                            switch (dinfo.getState()) {
                             case DOWNLOADING:
                                 info.setState(VideoInfo.States.DOWNLOADING);
                                 notify.run();
@@ -387,6 +398,7 @@ public class VideoDownload {
                                 // already
                                 // pased, STOP / ERROR / DONE i will catch up
                                 // here
+                            }
                         }
                     });
 
