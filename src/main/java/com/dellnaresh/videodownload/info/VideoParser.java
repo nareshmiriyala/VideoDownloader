@@ -60,9 +60,8 @@ public abstract class VideoParser {
         public int compare(VideoDownload o1, VideoDownload o2) {
             Integer i1 = o1.vq.ordinal();
             Integer i2 = o2.vq.ordinal();
-            Integer ic = i1.compareTo(i2);
 
-            return ic;
+            return i1.compareTo(i2);
         }
 
     }

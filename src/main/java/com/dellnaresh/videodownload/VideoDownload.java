@@ -54,7 +54,7 @@ public class VideoDownload {
         f = f.replaceAll("\\\\", replace);
         f = f.replaceAll(":", replace);
         f = f.replaceAll("\\?", replace);
-        f = f.replaceAll("\\\"", replace);
+        f = f.replaceAll("\"", replace);
         f = f.replaceAll("\\*", replace);
         f = f.replaceAll("<", replace);
         f = f.replaceAll(">", replace);
@@ -121,7 +121,7 @@ public class VideoDownload {
         if (Thread.currentThread().isInterrupted())
             throw new DownloadInterruptedError("interrupted");
 
-        return false;
+        return true;
     }
 
     void retry(VideoParser user, AtomicBoolean stop, Runnable notify, Throwable e) {
@@ -270,7 +270,7 @@ public class VideoDownload {
      * @param notify
      */
     public void extract(VideoParser user, AtomicBoolean stop, Runnable notify) {
-        while (!done(stop)) {
+        while (done(stop)) {
             try {
                 if (info.empty()) {
                     info.setState(VideoInfo.States.EXTRACTING);
@@ -355,7 +355,7 @@ public class VideoDownload {
                 extract(user, stop, notify);
             }
 
-            while (!done(stop)) {
+            while (done(stop)) {
                 try {
                     final DownloadInfo dinfo = info.getInfo();
 

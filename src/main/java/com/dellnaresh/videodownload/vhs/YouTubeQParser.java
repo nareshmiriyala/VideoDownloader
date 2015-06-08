@@ -36,9 +36,9 @@ public class YouTubeQParser extends YouTubeParser {
         Collections.sort(sNextVideoURL, new VideoContentFirst());
 
         for (VideoDownload v : sNextVideoURL) {
-            boolean found = true;
+            boolean found;
 
-            found &= q.equals(v.vq);
+            found = q.equals(v.vq);
 
             if (found) {
                 vinfo.setVideoQuality(v.vq);

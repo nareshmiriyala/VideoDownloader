@@ -80,7 +80,7 @@ public class AppManagedDownloadTest {
             //
             // if youtube does not have video with requested quality, program
             // will raise en exception.
-            VideoParser user = null;
+            VideoParser user;
 
             // create simple youtube request
             //user = new YouTubeParser(info.getWeb());
