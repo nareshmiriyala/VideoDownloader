@@ -1,47 +1,30 @@
 package com.dellnaresh.videodownload.info;
 
+import com.dellnaresh.videodownload.vhs.VimeoParser;
+import com.dellnaresh.videodownload.vhs.YouTubeParser;
+import com.dellnaresh.wget.info.DownloadInfo;
+import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
+
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.dellnaresh.videodownload.vhs.VimeoParser;
-import com.dellnaresh.videodownload.vhs.YouTubeParser;
-import com.github.axet.wget.info.DownloadInfo;
-import com.github.axet.wget.info.ex.DownloadInterruptedError;
-
 public class VideoInfo {
-
-    // keep it in order hi->lo
-    public enum VideoQuality {
-        p3072, p2304, p1080, p720, p520, p480, p360, p270, p240, p224, p144
-    }
-
-    public enum States {
-        QUEUE, EXTRACTING, EXTRACTING_DONE, DOWNLOADING, RETRYING, DONE, ERROR, STOP
-    }
 
     // user friendly url (not direct video stream url)
     private URL web;
-
     private VideoQuality vq;
     private DownloadInfo info;
     private String title;
     private URL icon;
-
     // states, three variables
     private States state;
     private Throwable exception;
     private int delay;
-
     /**
-     * 
-     * @param vq
-     *            max video quality to download
-     * @param web
-     *            user firendly url
-     * @param video
-     *            video stream url
-     * @param title
-     *            video title
+     * @param vq    max video quality to download
+     * @param web   user firendly url
+     * @param video video stream url
+     * @param title video title
      */
     public VideoInfo(URL web) {
         this.setWeb(web);
@@ -51,7 +34,7 @@ public class VideoInfo {
 
     /**
      * check if we have call extract()
-     * 
+     *
      * @return true - if extract() already been called
      */
     public boolean empty() {
@@ -90,7 +73,7 @@ public class VideoInfo {
 
     /**
      * get current video quality. holds actual videoquality ready for download
-     * 
+     *
      * @return videoquality of requested URL
      */
     public VideoQuality getVideoQuality() {
@@ -98,9 +81,7 @@ public class VideoInfo {
     }
 
     /**
-     * 
-     * @param vq
-     *            video quality
+     * @param vq video quality
      */
     public void setVideoQuality(VideoQuality vq) {
         this.vq = vq;
@@ -185,6 +166,15 @@ public class VideoInfo {
 
     public void setIcon(URL icon) {
         this.icon = icon;
+    }
+
+    // keep it in order hi->lo
+    public enum VideoQuality {
+        p3072, p2304, p1080, p720, p520, p480, p360, p270, p240, p224, p144
+    }
+
+    public enum States {
+        QUEUE, EXTRACTING, EXTRACTING_DONE, DOWNLOADING, RETRYING, DONE, ERROR, STOP
     }
 
 }

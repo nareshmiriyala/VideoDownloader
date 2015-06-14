@@ -2,12 +2,17 @@ package com.dellnaresh.videodownload.vhs;
 
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
-import com.github.axet.wget.WGet;
-import com.github.axet.wget.info.ex.DownloadError;
+import com.dellnaresh.wget.WGet;
+import com.dellnaresh.wget.info.ex.DownloadError;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.*;
 import java.util.ArrayList;
@@ -21,6 +26,7 @@ import java.util.regex.Pattern;
 public class YouTubeParser extends VideoParser {
 
     final static String UTF8 = "UTF-8";
+    private static final Logger logger = LoggerFactory.getLogger(YouTubeParser.class);
     static final Map<Integer, VideoInfo.VideoQuality> itagMap = new HashMap<Integer, VideoInfo.VideoQuality>() {
         private static final long serialVersionUID = -6925194111122038477L;
 
@@ -49,6 +55,7 @@ public class YouTubeParser extends VideoParser {
             put(5, VideoInfo.VideoQuality.p240); // flv
         }
     };
+    public static final String VIDEO_URL = "http://www.youtube.com/watch?v=%s";
     URL source;
 
     public YouTubeParser(URL input) {
@@ -61,6 +68,7 @@ public class YouTubeParser extends VideoParser {
 
     public static String extractId(URL url) {
         {
+            logger.debug("extracting id");
             Pattern u = Pattern.compile("youtube.com/watch?.*v=([^&]*)");
             Matcher um = u.matcher(url.toString());
             if (um.find())
@@ -94,11 +102,19 @@ public class YouTubeParser extends VideoParser {
 
     @Override
     public List<VideoDownload> extractLinks(final VideoInfo info, final AtomicBoolean stop, final Runnable notify) {
+        logger.info("Extracting links of video ",info.getTitle());
         try {
             try {
-                return extractEmbedded(info, stop, notify);
+                List<VideoDownload> videoDownloads = extractEmbedded(info, stop, notify);
+
+                return videoDownloads;
             } catch (EmbeddingDisabled e) {
-                return streamCpature(info, stop, notify);
+                    logger.warn("Cant extract any link using Embedded method ,trying extractHTML");
+                List<VideoDownload> videoDownloads = extractHTML(info, stop, notify);
+                if(videoDownloads.size()==0){
+                    videoDownloads=streamCpature(info, stop, notify);
+                }
+                return videoDownloads;
             }
         } catch (RuntimeException e) {
             throw e;
@@ -117,6 +133,7 @@ public class YouTubeParser extends VideoParser {
      */
     List<VideoDownload> streamCpature(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
+        logger.info("starting streamCapture of video ",info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String html;
@@ -157,6 +174,55 @@ public class YouTubeParser extends VideoParser {
 
         sNextVideoURL.add(new VideoDownload(vd, url));
     }
+    List<VideoDownload> extractHTML(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
+            throws Exception {
+        logger.info("starting extractHTML of video ",info.getTitle());
+        List<VideoDownload> sNextVideoURL = new ArrayList<>();
+
+        String id = extractId(source);
+        if (id == null) {
+            throw new RuntimeException("unknown url");
+        }
+        String url = String.format(VIDEO_URL, id);
+        Document doc = Jsoup.connect(url).get();
+        String foundMessage = null;
+        String SEARCH_PATTERN = "\"url_encoded_fmt_stream_map\":(.+?),";
+        String title = doc.select("title").first().html();
+        info.setTitle(title);
+        foundMessage = getSearchMessage(doc, SEARCH_PATTERN);
+        String url_encoded_fmt_stream_map= URLDecoder.decode(foundMessage, "UTF-8");
+        String[] urlStrings = url_encoded_fmt_stream_map.split("url=");
+        URL urlValue = new URL(urlStrings[1]);
+        logger.info("Value of url to be downloaded {}",urlStrings[1]);
+        VideoInfo.VideoQuality vd = itagMap.get(101);
+        sNextVideoURL.add(new VideoDownload(vd, urlValue));
+//        extractUrlEncodedVideos(sNextVideoURL, url_encoded_fmt_stream_map);
+        return sNextVideoURL;
+    }
+
+    private String getSearchMessage(Document doc, String SEARCH_PATTERN) {
+        boolean found=false;
+        String foundMessage=null;
+        int i=0;
+        while(!found) {
+            try {
+                Element script = doc.select("script").get(i); // Get the script part
+
+                i++;
+                String pattern = SEARCH_PATTERN;
+                Pattern p = Pattern.compile(pattern); // Regex for the value of the key
+                Matcher m = p.matcher(script.html()); // you have to use html here and NOT text! Text will drop the 'key' part
+                while (m.find()) {
+                    foundMessage = m.group(1);
+                    logger.debug("Found search message {}",foundMessage);
+                    found = true;
+                }
+            }catch (Exception e){
+                throw new DownloadError("Error during download");
+            }
+        }
+        return foundMessage;
+    }
 
     /**
      * allows to download age restricted videos
@@ -168,6 +234,7 @@ public class YouTubeParser extends VideoParser {
      */
     List<VideoDownload> extractEmbedded(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
+        logger.info("starting extractEmbedded of video ",info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String id = extractId(source);
@@ -177,29 +244,30 @@ public class YouTubeParser extends VideoParser {
 
         info.setTitle(String.format("http://www.youtube.com/watch?v=%s", id));
 
-        String get = String.format("http://www.youtube.com/get_video_info?authuser=0&video_id=%s&el=embedded", id);
+//        String get = String.format("http://www.youtube.com/get_video_info?authuser=0&video_id=%s&el=embedded", id);
+        String get = String.format("http://www.youtube.com/get_video_info?video_id=%s&el=embedded&ps=default&eurl=&gl=US&hl=en", id);
 
-        URL url = new URL(get);
+            URL url = new URL(get);
 
-        String qs = WGet.getHtml(url, new WGet.HtmlLoader() {
-            @Override
-            public void notifyRetry(int delay, Throwable e) {
-                info.setDelay(delay, e);
-                notify.run();
-            }
+            String qs = WGet.getHtml(url, new WGet.HtmlLoader() {
+                @Override
+                public void notifyRetry(int delay, Throwable e) {
+                    info.setDelay(delay, e);
+                    notify.run();
+                }
 
-            @Override
-            public void notifyDownloading() {
-                info.setState(VideoInfo.States.DOWNLOADING);
-                notify.run();
-            }
+                @Override
+                public void notifyDownloading() {
+                    info.setState(VideoInfo.States.DOWNLOADING);
+                    notify.run();
+                }
 
-            @Override
-            public void notifyMoved() {
-                info.setState(VideoInfo.States.RETRYING);
-                notify.run();
-            }
-        }, stop);
+                @Override
+                public void notifyMoved() {
+                    info.setState(VideoInfo.States.RETRYING);
+                    notify.run();
+                }
+            }, stop);
 
         Map<String, String> map = getQueryMap(qs);
 
@@ -324,7 +392,8 @@ public class YouTubeParser extends VideoParser {
 
     // http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 
-    void extractUrlEncodedVideos(List<VideoDownload> sNextVideoURL, String sline) throws Exception {
+    public void extractUrlEncodedVideos(List<VideoDownload> sNextVideoURL, String sline) throws Exception {
+        logger.info("Extracting url encoded videos");
         String[] urlStrings = sline.split("url=");
 
         for (String urlString : urlStrings) {

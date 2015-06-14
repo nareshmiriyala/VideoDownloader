@@ -2,9 +2,9 @@ package com.dellnaresh.videodownload.vhs;
 
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
-import com.github.axet.wget.WGet;
-import com.github.axet.wget.WGet.HtmlLoader;
-import com.github.axet.wget.info.ex.DownloadError;
+import com.dellnaresh.wget.WGet;
+import com.dellnaresh.wget.WGet.HtmlLoader;
+import com.dellnaresh.wget.info.ex.DownloadError;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringEscapeUtils;
 

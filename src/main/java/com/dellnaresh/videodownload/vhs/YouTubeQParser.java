@@ -1,9 +1,11 @@
 package com.dellnaresh.videodownload.vhs;
 
 import com.dellnaresh.videodownload.info.VideoInfo;
-import com.github.axet.wget.info.DownloadInfo;
-import com.github.axet.wget.info.ex.DownloadError;
-import com.github.axet.wget.info.ex.DownloadRetry;
+import com.dellnaresh.wget.info.DownloadInfo;
+import com.dellnaresh.wget.info.ex.DownloadError;
+import com.dellnaresh.wget.info.ex.DownloadRetry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.Collections;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class YouTubeQParser extends YouTubeParser {
-
+    private static final Logger logger= LoggerFactory.getLogger(YouTubeParser.class);
     VideoInfo.VideoQuality q;
 
     public YouTubeQParser(URL input, VideoInfo.VideoQuality q) {
@@ -21,6 +23,7 @@ public class YouTubeQParser extends YouTubeParser {
     }
 
     public DownloadInfo extract(final VideoInfo vinfo, final AtomicBoolean stop, final Runnable notify) {
+        logger.info("Starting extraction of video {}",vinfo.getTitle());
         List<VideoDownload> sNextVideoURL = extractLinks(vinfo, stop, notify);
 
         if (sNextVideoURL.size() == 0) {

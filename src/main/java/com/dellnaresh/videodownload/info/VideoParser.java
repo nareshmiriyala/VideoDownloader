@@ -1,8 +1,8 @@
 package com.dellnaresh.videodownload.info;
 
-import com.github.axet.wget.info.DownloadInfo;
-import com.github.axet.wget.info.ex.DownloadError;
-import com.github.axet.wget.info.ex.DownloadRetry;
+import com.dellnaresh.wget.info.DownloadInfo;
+import com.dellnaresh.wget.info.ex.DownloadError;
+import com.dellnaresh.wget.info.ex.DownloadRetry;
 
 import java.net.URL;
 import java.util.Collections;

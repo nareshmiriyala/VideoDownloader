@@ -2,12 +2,14 @@ package com.dellnaresh.videodownload;
 
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
-import com.github.axet.wget.*;
-import com.github.axet.wget.info.DownloadInfo;
-import com.github.axet.wget.info.DownloadInfo.Part;
-import com.github.axet.wget.info.ex.*;
+import com.dellnaresh.wget.*;
+import com.dellnaresh.wget.info.DownloadInfo;
+import com.dellnaresh.wget.info.DownloadInfo.Part;
+import com.dellnaresh.wget.info.ex.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,10 +25,11 @@ public class VideoDownload {
     File targetForce = null;
 
     File targetFile = null;
+    private static final Logger logger= LoggerFactory.getLogger(VideoDownload.class);
 
     /**
      * extract video information constructor
-     * 
+     *
      * @param source
      */
     public VideoDownload(URL source) {
@@ -99,7 +102,7 @@ public class VideoDownload {
         return info;
     }
 
-   public void download() {
+    public void download() {
         download(null, new AtomicBoolean(false), new Runnable() {
             @Override
             public void run() {
@@ -125,6 +128,7 @@ public class VideoDownload {
     }
 
     void retry(VideoParser user, AtomicBoolean stop, Runnable notify, Throwable e) {
+        logger.info("Starting retry of video ");
         boolean retracted = false;
 
         while (!retracted) {
@@ -206,15 +210,19 @@ public class VideoDownload {
             String ct = dinfo.getContentType();
             if (ct == null)
                 throw new DownloadRetry("null content type");
+             if(ct.contains("text/html")){
+                 String result = sfilename.replaceAll("[-+.^:,]","");
+                 f = new File(targetDir, result+".mp4");
+             }else {
+                 String ext = ct.replaceFirst("video/", "").replaceAll("x-", "");
 
-            String ext = ct.replaceFirst("video/", "").replaceAll("x-", "");
+                 do {
+                     String add = idupcount > 0 ? " (".concat(idupcount.toString()).concat(")") : "";
 
-            do {
-                String add = idupcount > 0 ? " (".concat(idupcount.toString()).concat(")") : "";
-
-                f = new File(targetDir, sfilename + add + "." + ext);
-                idupcount += 1;
-            } while (f.exists());
+                     f = new File(targetDir, sfilename + add + "." + ext);
+                     idupcount += 1;
+                 } while (f.exists());
+             }
 
             targetFile = f;
 
@@ -231,11 +239,11 @@ public class VideoDownload {
         if (e instanceof DownloadIOCodeError) {
             DownloadIOCodeError c = (DownloadIOCodeError) e;
             switch (c.getCode()) {
-            case HttpURLConnection.HTTP_FORBIDDEN:
-            case 416:
-                return true;
-            default:
-                return false;
+                case HttpURLConnection.HTTP_FORBIDDEN:
+                case 416:
+                    return true;
+                default:
+                    return false;
             }
         }
 
@@ -244,14 +252,14 @@ public class VideoDownload {
 
     /**
      * return status of download information. subclassing for VideoInfo.empty();
-     * 
+     *
      * @return
      */
     public boolean empty() {
         return getVideo().empty();
     }
 
-   public void extract() {
+    public void extract() {
         extract(new AtomicBoolean(false), new Runnable() {
             @Override
             public void run() {
@@ -265,11 +273,12 @@ public class VideoDownload {
 
     /**
      * extract video information, retry until success
-     * 
+     *
      * @param stop
      * @param notify
      */
     public void extract(VideoParser user, AtomicBoolean stop, Runnable notify) {
+        logger.info("Starting extraction of video {}",info.getTitle());
         while (done(stop)) {
             try {
                 if (info.empty()) {
@@ -304,7 +313,7 @@ public class VideoDownload {
 
     /**
      * check if all parts has the same filenotfound exception. if so throw DownloadError.FilenotFoundexcepiton
-     * 
+     *
      * @param e
      */
     void checkFileNotFound(DownloadMultipartError e) {
@@ -346,6 +355,7 @@ public class VideoDownload {
     }
 
     public void download(VideoParser user, final AtomicBoolean stop, final Runnable notify) {
+        logger.info("Starting download of video {}",info.getTitle());
         if (targetFile == null && targetForce == null && targetDir == null) {
             throw new RuntimeException("Set download file or directory first");
         }
@@ -359,9 +369,9 @@ public class VideoDownload {
                 try {
                     final DownloadInfo dinfo = info.getInfo();
 
-                    if (dinfo.getContentType() == null || !dinfo.getContentType().contains("video/")) {
-                        throw new DownloadRetry("unable to download video, bad content");
-                    }
+//                    if (dinfo.getContentType() == null || !dinfo.getContentType().contains("video/")) {
+//                        throw new DownloadRetry("unable to download video, bad content");
+//                    }
 
                     target(dinfo);
 
@@ -385,19 +395,19 @@ public class VideoDownload {
                         @Override
                         public void run() {
                             switch (dinfo.getState()) {
-                            case DOWNLOADING:
-                                info.setState(VideoInfo.States.DOWNLOADING);
-                                notify.run();
-                                break;
-                            case RETRYING:
-                                info.setDelay(dinfo.getDelay(), dinfo.getException());
-                                notify.run();
-                                break;
-                            default:
-                                // we can safely skip all statues. (extracting -
-                                // already
-                                // pased, STOP / ERROR / DONE i will catch up
-                                // here
+                                case DOWNLOADING:
+                                    info.setState(VideoInfo.States.DOWNLOADING);
+                                    notify.run();
+                                    break;
+                                case RETRYING:
+                                    info.setDelay(dinfo.getDelay(), dinfo.getException());
+                                    notify.run();
+                                    break;
+                                default:
+                                    // we can safely skip all statues. (extracting -
+                                    // already
+                                    // pased, STOP / ERROR / DONE i will catch up
+                                    // here
                             }
                         }
                     });
