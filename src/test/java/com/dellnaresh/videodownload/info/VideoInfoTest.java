@@ -1,6 +1,7 @@
 package com.dellnaresh.videodownload.info;
 
 import com.dellnaresh.videodownload.vhs.YouTubeParser;
+import com.dellnaresh.wget.info.ex.DownloadError;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +37,7 @@ public class VideoInfoTest {
         videoInfo=new VideoInfo(mockYoutubeURL);
     }
 
-    @Test
+    @Test(expected = DownloadError.class)
     public void testExtract() throws Exception{
         videoInfo.extractDownloadInfo(mockVideoParser, mockAtomicBoolean, mockRunnable);
 
