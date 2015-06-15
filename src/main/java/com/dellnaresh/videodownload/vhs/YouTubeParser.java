@@ -245,7 +245,7 @@ public class YouTubeParser extends VideoParser {
         info.setTitle(String.format("http://www.youtube.com/watch?v=%s", id));
 
 //        String get = String.format("http://www.youtube.com/get_video_info?authuser=0&video_id=%s&el=embedded", id);
-        String get = String.format("http://www.youtube.com/get_video_info?video_id=%s&el=embedded&ps=default&eurl=&gl=US&hl=en", id);
+        String get = String.format("http://www.youtube.com/get_video_info?video_id=%s&el=embedded&ps=default&eurl=&gl=US&hl=en&asv=2", id);
 
             URL url = new URL(get);
 
