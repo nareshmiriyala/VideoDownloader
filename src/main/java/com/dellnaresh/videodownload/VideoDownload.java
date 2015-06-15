@@ -212,6 +212,7 @@ public class VideoDownload {
                 throw new DownloadRetry("null content type");
              if(contentType.contains("text/html")){
                  String result = sfilename.replaceAll("[-+.^:,]","");
+
                  f = new File(targetDir, result+".mp4");
              }else {
                  String ext = contentType.replaceFirst("video/", "").replaceAll("x-", "");

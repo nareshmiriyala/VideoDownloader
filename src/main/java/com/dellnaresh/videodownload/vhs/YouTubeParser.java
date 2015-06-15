@@ -108,17 +108,18 @@ public class YouTubeParser extends VideoParser {
 
                 return extractEmbedded(videoInfo, stop, notify);
             } catch (EmbeddingDisabled e) {
-                    logger.warn("Cant extractDownloadInfo any link using Embedded method ,trying extractHTML");
-                List<VideoDownload> videoDownloads = extractHTML(videoInfo, stop, notify);
-                if(videoDownloads.size()==0){
-                    videoDownloads=streamCpature(videoInfo, stop, notify);
-                }
-                return videoDownloads;
+               logger.warn("Cant download any link using Embedded method ,trying extractHTML");
+               return extractHTML(videoInfo, stop, notify);
             }
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            try {
+                logger.warn("Cant download any link using extractHTML ,trying streamCpature");
+                return streamCpature(videoInfo, stop, notify);
+            }catch (Exception e1) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -173,9 +174,10 @@ public class YouTubeParser extends VideoParser {
 
         sNextVideoURL.add(new VideoDownload(vd, url));
     }
+
     List<VideoDownload> extractHTML(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        logger.info("starting extractHTML of video ",info.getTitle());
+        logger.info("starting extractHTML of video ", info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String id = extractId(source);
@@ -189,10 +191,10 @@ public class YouTubeParser extends VideoParser {
         String title = doc.select("title").first().html();
         info.setTitle(title);
         foundMessage = getSearchMessage(doc, SEARCH_PATTERN);
-        String url_encoded_fmt_stream_map= URLDecoder.decode(foundMessage, "UTF-8");
+        String url_encoded_fmt_stream_map = URLDecoder.decode(foundMessage, "UTF-8");
         String[] urlStrings = url_encoded_fmt_stream_map.split("url=");
         URL urlValue = new URL(urlStrings[1]);
-        logger.info("Value of url to be downloaded {}",urlStrings[1]);
+        logger.info("Value of url to be downloaded {}", urlStrings[1]);
         VideoInfo.VideoQuality vd = itagMap.get(101);
         sNextVideoURL.add(new VideoDownload(vd, urlValue));
 //        extractUrlEncodedVideos(sNextVideoURL, url_encoded_fmt_stream_map);

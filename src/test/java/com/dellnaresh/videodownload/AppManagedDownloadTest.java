@@ -48,6 +48,14 @@ public class AppManagedDownloadTest {
                         case RETRYING:
                             logger.info("Retrying downloadVideo with delay {} having state {}",i1.getDelay(),i1.getState());
                             break;
+                        case STOP:
+                            logger.error("Stopping download");
+                            System.exit(0);
+                            break;
+                        case ERROR:
+                            logger.error("Error during download");
+                            System.exit(0);
+                            break;
                         case DOWNLOADING:
                             long now = System.currentTimeMillis();
                             if (now - 1000 > last) {
