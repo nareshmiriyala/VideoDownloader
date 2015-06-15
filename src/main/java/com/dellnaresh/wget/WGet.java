@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WGet {
-    private static Logger logger= LoggerFactory.getLogger(WGet.class);
+    private static Logger logger = LoggerFactory.getLogger(WGet.class);
     private Direct direct;
     private File targetFile;
     private DownloadInfo info;

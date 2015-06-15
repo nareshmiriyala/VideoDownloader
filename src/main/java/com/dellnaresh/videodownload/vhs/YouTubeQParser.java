@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class YouTubeQParser extends YouTubeParser {
-    private static final Logger logger= LoggerFactory.getLogger(YouTubeParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(YouTubeParser.class);
     VideoInfo.VideoQuality q;
 
     public YouTubeQParser(URL input, VideoInfo.VideoQuality q) {

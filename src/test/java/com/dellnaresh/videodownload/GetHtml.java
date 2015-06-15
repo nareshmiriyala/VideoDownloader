@@ -25,7 +25,7 @@ public class GetHtml {
             BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
             String urlStr = bufferRead.readLine();
             URL url1 = new URL(urlStr);
-            YouTubeParser youTubeParser=new YouTubeParser(url1);
+            YouTubeParser youTubeParser = new YouTubeParser(url1);
 
             String h = WGet.getHtml(url1);
             List<VideoParser.VideoDownload> sNextVideoURL = new ArrayList<>();
@@ -33,9 +33,9 @@ public class GetHtml {
             String urlEncodedFmtStreamMap = queryMap.get("url_encoded_fmt_stream_map");
             Document doc = Jsoup.connect(urlStr).get();
             Elements select = doc.select(urlEncodedFmtStreamMap);
-            String url_encoded_fmt_stream_map=null;
-            if(urlEncodedFmtStreamMap!=null) {
-                 url_encoded_fmt_stream_map= URLDecoder.decode(urlEncodedFmtStreamMap, UTF8);
+            String url_encoded_fmt_stream_map = null;
+            if (urlEncodedFmtStreamMap != null) {
+                url_encoded_fmt_stream_map = URLDecoder.decode(urlEncodedFmtStreamMap, UTF8);
 
             }
 //            youTubeParser.extractUrlEncodedVideos(sNextVideoURL, url_encoded_fmt_stream_map);

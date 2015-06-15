@@ -24,8 +24,8 @@ public abstract class Direct {
     DownloadInfo downloadInfo;
 
     /**
-     * @param downloadInfo   downloadVideo file information
-     * @param target target file
+     * @param downloadInfo downloadVideo file information
+     * @param target       target file
      */
     public Direct(DownloadInfo downloadInfo, File target) {
         this.target = target;

@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 
 public class YouTubeParser extends VideoParser {
 
+    public static final String VIDEO_URL = "http://www.youtube.com/watch?v=%s";
     final static String UTF8 = "UTF-8";
-    private static final Logger logger = LoggerFactory.getLogger(YouTubeParser.class);
     static final Map<Integer, VideoInfo.VideoQuality> itagMap = new HashMap<Integer, VideoInfo.VideoQuality>() {
         private static final long serialVersionUID = -6925194111122038477L;
 
@@ -55,7 +55,7 @@ public class YouTubeParser extends VideoParser {
             put(5, VideoInfo.VideoQuality.p240); // flv
         }
     };
-    public static final String VIDEO_URL = "http://www.youtube.com/watch?v=%s";
+    private static final Logger logger = LoggerFactory.getLogger(YouTubeParser.class);
     URL source;
 
     public YouTubeParser(URL input) {
@@ -108,8 +108,8 @@ public class YouTubeParser extends VideoParser {
 
                 return extractEmbedded(videoInfo, stop, notify);
             } catch (EmbeddingDisabled e) {
-               logger.warn("Cant download any link using Embedded method ,trying extractHTML");
-               return extractHTML(videoInfo, stop, notify);
+                logger.warn("Cant download any link using Embedded method ,trying extractHTML");
+                return extractHTML(videoInfo, stop, notify);
             }
         } catch (RuntimeException e) {
             throw e;
@@ -117,7 +117,7 @@ public class YouTubeParser extends VideoParser {
             try {
                 logger.warn("Cant download any link using extractHTML ,trying streamCpature");
                 return streamCpature(videoInfo, stop, notify);
-            }catch (Exception e1) {
+            } catch (Exception e1) {
                 throw new RuntimeException(e);
             }
         }
@@ -133,7 +133,7 @@ public class YouTubeParser extends VideoParser {
      */
     List<VideoDownload> streamCpature(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        logger.info("starting streamCapture of video ",info.getTitle());
+        logger.info("starting streamCapture of video ", info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String html;
@@ -202,10 +202,10 @@ public class YouTubeParser extends VideoParser {
     }
 
     private String getSearchMessage(Document doc, String SEARCH_PATTERN) {
-        boolean found=false;
-        String foundMessage=null;
-        int i=0;
-        while(!found) {
+        boolean found = false;
+        String foundMessage = null;
+        int i = 0;
+        while (!found) {
             try {
                 Element script = doc.select("script").get(i); // Get the script part
 
@@ -214,10 +214,10 @@ public class YouTubeParser extends VideoParser {
                 Matcher m = p.matcher(script.html()); // you have to use html here and NOT text! Text will drop the 'key' part
                 while (m.find()) {
                     foundMessage = m.group(1);
-                    logger.debug("Found search message {}",foundMessage);
+                    logger.debug("Found search message {}", foundMessage);
                     found = true;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new DownloadError("Error during downloadVideo");
             }
         }
@@ -234,7 +234,7 @@ public class YouTubeParser extends VideoParser {
      */
     List<VideoDownload> extractEmbedded(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        logger.info("starting extractEmbedded of video ",info.getTitle());
+        logger.info("starting extractEmbedded of video ", info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String id = extractId(source);
@@ -247,27 +247,27 @@ public class YouTubeParser extends VideoParser {
 //        String get = String.format("http://www.youtube.com/get_video_info?authuser=0&video_id=%s&el=embedded", id);
         String get = String.format("http://www.youtube.com/get_video_info?video_id=%s&el=embedded&ps=default&eurl=&gl=US&hl=en&asv=2", id);
 
-            URL url = new URL(get);
+        URL url = new URL(get);
 
-            String qs = WGet.getHtml(url, new WGet.HtmlLoader() {
-                @Override
-                public void notifyRetry(int delay, Throwable e) {
-                    info.setDelay(delay, e);
-                    notify.run();
-                }
+        String qs = WGet.getHtml(url, new WGet.HtmlLoader() {
+            @Override
+            public void notifyRetry(int delay, Throwable e) {
+                info.setDelay(delay, e);
+                notify.run();
+            }
 
-                @Override
-                public void notifyDownloading() {
-                    info.setState(VideoInfo.States.DOWNLOADING);
-                    notify.run();
-                }
+            @Override
+            public void notifyDownloading() {
+                info.setState(VideoInfo.States.DOWNLOADING);
+                notify.run();
+            }
 
-                @Override
-                public void notifyMoved() {
-                    info.setState(VideoInfo.States.RETRYING);
-                    notify.run();
-                }
-            }, stop);
+            @Override
+            public void notifyMoved() {
+                info.setState(VideoInfo.States.RETRYING);
+                notify.run();
+            }
+        }, stop);
 
         Map<String, String> map = getQueryMap(qs);
 

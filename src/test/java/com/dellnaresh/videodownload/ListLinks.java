@@ -33,7 +33,7 @@ public class ListLinks {
 
         print("\nImports: (%d)", imports.size());
         for (Element link : imports) {
-            print(" * %s <%s> (%s)", link.tagName(),link.attr("abs:href"), link.attr("rel"));
+            print(" * %s <%s> (%s)", link.tagName(), link.attr("abs:href"), link.attr("rel"));
         }
 
         print("\nLinks: (%d)", links.size());
@@ -48,7 +48,7 @@ public class ListLinks {
 
     private static String trim(String s, int width) {
         if (s.length() > width)
-            return s.substring(0, width-1) + ".";
+            return s.substring(0, width - 1) + ".";
         else
             return s;
     }

@@ -9,6 +9,7 @@ public class RecursiveThreadExecutor {
     List<Job> threads = new ArrayList<Job>();
     List<Task> tasks = new ArrayList<Task>();
     int waitingThreads = 0;
+
     /**
      * maxThread - limit max thread by number.
      *

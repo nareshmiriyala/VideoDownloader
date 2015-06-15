@@ -18,10 +18,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectSingle extends Direct {
 
-    private static Logger logger= LoggerFactory.getLogger(DirectSingle.class);
+    private static Logger logger = LoggerFactory.getLogger(DirectSingle.class);
+
     /**
-     * @param downloadInfo   downloadVideo file information
-     * @param target target file
+     * @param downloadInfo downloadVideo file information
+     * @param target       target file
      */
     public DirectSingle(DownloadInfo downloadInfo, File target) {
         super(downloadInfo, target);
@@ -48,7 +49,7 @@ public class DirectSingle extends Direct {
         return true;
     }
 
-    void downloadFile(DownloadInfo info,AtomicBoolean stop,Runnable notify) throws IOException{
+    void downloadFile(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Calling downloadFile method");
         if (stop.get())
             throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
@@ -118,7 +119,7 @@ public class DirectSingle extends Direct {
                 public void download() throws IOException {
                     downloadInfo.setState(URLInfo.States.DOWNLOADING);
                     notify.run();
-                    downloadFile(downloadInfo,stop,notify);
+                    downloadFile(downloadInfo, stop, notify);
 //                    downloadPart(downloadInfo, stop, notify);
                 }
 

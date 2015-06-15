@@ -12,8 +12,8 @@ import java.net.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RetryWrap {
-    private static Logger logger= LoggerFactory.getLogger(RetryWrap.class);
     public static final int RETRY_DELAY = 5;
+    private static Logger logger = LoggerFactory.getLogger(RetryWrap.class);
 
     static <T> void moved(AtomicBoolean stop, WrapReturn<T> r, DownloadMoved e) {
         logger.info("Calling moved method");

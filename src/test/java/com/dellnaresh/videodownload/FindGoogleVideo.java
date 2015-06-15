@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 public class FindGoogleVideo {
     public static void main(String[] args) {
         String url = "https://www.youtube.com/watch?v=Fr3lIhSIZZE";
-        System.out.println("Fetching %s..."+ url);
-        String msg=null;
+        System.out.println("Fetching %s..." + url);
+        String msg = null;
 
         Document doc = null;
         try {
@@ -34,9 +34,9 @@ public class FindGoogleVideo {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        boolean found=false;
-        int i=0;
-        while(!found) {
+        boolean found = false;
+        int i = 0;
+        while (!found) {
             Element script = doc.select("script").get(i); // Get the script part
             i++;
             String pattern = "\"url_encoded_fmt_stream_map\":(.+?),";
@@ -47,39 +47,39 @@ public class FindGoogleVideo {
             while (m.find()) {
 //                System.out.println(m.group()); // the whole key ('key = value')
 //                System.out.println(m.group(1)); // value only
-                msg=m.group(1);
-                System.out.println("Found Message is:"+msg);
-                found=true;
+                msg = m.group(1);
+                System.out.println("Found Message is:" + msg);
+                found = true;
             }
         }
         try {
-            YouTubeParser youTubeParser=new YouTubeParser(new URL(url));
+            YouTubeParser youTubeParser = new YouTubeParser(new URL(url));
 
-        try {
-            String url_encoded_fmt_stream_map= URLDecoder.decode(msg, "UTF-8");
-
-            System.out.println("Value of URL:"+url_encoded_fmt_stream_map);
-            List<VideoParser.VideoDownload> sNextVideoURL = new ArrayList<>();
             try {
-//                youTubeParser.extractUrlEncodedVideos(sNextVideoURL, url_encoded_fmt_stream_map);
-                String[] urlStrings = url_encoded_fmt_stream_map.split("url=");
-                String urlString = StringEscapeUtils.unescapeJava(urlStrings[1]);
+                String url_encoded_fmt_stream_map = URLDecoder.decode(msg, "UTF-8");
 
-                String urlFull = URLDecoder.decode(urlString, "UTF-8");
-                URL url1 = new URL(urlStrings[1]);
-                System.out.println("ULR1 value:"+url1);
-                FileUtils.copyURLToFile(url1, new File("C:\\\\Naresh Data\\\\Development Software\\\\Videos\\\\Android\\ali.webm"));
+                System.out.println("Value of URL:" + url_encoded_fmt_stream_map);
+                List<VideoParser.VideoDownload> sNextVideoURL = new ArrayList<>();
+                try {
+//                youTubeParser.extractUrlEncodedVideos(sNextVideoURL, url_encoded_fmt_stream_map);
+                    String[] urlStrings = url_encoded_fmt_stream_map.split("url=");
+                    String urlString = StringEscapeUtils.unescapeJava(urlStrings[1]);
+
+                    String urlFull = URLDecoder.decode(urlString, "UTF-8");
+                    URL url1 = new URL(urlStrings[1]);
+                    System.out.println("ULR1 value:" + url1);
+                    FileUtils.copyURLToFile(url1, new File("C:\\\\Naresh Data\\\\Development Software\\\\Videos\\\\Android\\ali.webm"));
 //                ReadableByteChannel rbc = Channels.newChannel(url1.openStream());
 //                FileOutputStream fos = new FileOutputStream("C:\\\\Naresh Data\\\\Development Software\\\\Videos\\\\Android\\information.webm");
 //                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 //                System.out.println("Map value:"+sNextVideoURL.get(0));
-            } catch (Exception e) {
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

@@ -19,13 +19,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoDownload {
 
+    private static final Logger logger = LoggerFactory.getLogger(VideoDownload.class);
     private VideoInfo videoInfo;
     private File targetDir;
-
     private File targetForce = null;
-
     private File targetFile = null;
-    private static final Logger logger= LoggerFactory.getLogger(VideoDownload.class);
 
     /**
      * extractDownloadInfo video information constructor
@@ -210,20 +208,20 @@ public class VideoDownload {
             String contentType = downloadInfo.getContentType();
             if (contentType == null)
                 throw new DownloadRetry("null content type");
-             if(contentType.contains("text/html")){
-                 String result = sfilename.replaceAll("[-+.^:,]","");
+            if (contentType.contains("text/html")) {
+                String result = sfilename.replaceAll("[-+.^:,]", "");
 
-                 f = new File(targetDir, result+".mp4");
-             }else {
-                 String ext = contentType.replaceFirst("video/", "").replaceAll("x-", "");
+                f = new File(targetDir, result + ".mp4");
+            } else {
+                String ext = contentType.replaceFirst("video/", "").replaceAll("x-", "");
 
-                 do {
-                     String add = idupcount > 0 ? " (".concat(idupcount.toString()).concat(")") : "";
+                do {
+                    String add = idupcount > 0 ? " (".concat(idupcount.toString()).concat(")") : "";
 
-                     f = new File(targetDir, sfilename + add + "." + ext);
-                     idupcount += 1;
-                 } while (f.exists());
-             }
+                    f = new File(targetDir, sfilename + add + "." + ext);
+                    idupcount += 1;
+                } while (f.exists());
+            }
 
             targetFile = f;
 

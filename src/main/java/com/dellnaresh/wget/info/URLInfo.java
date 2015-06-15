@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * URLInfo - keep all information about source in one place. Thread safe.
  */
 public class URLInfo extends BrowserInfo {
-    private Logger logger= LoggerFactory.getLogger(URLInfo.class);
+    private Logger logger = LoggerFactory.getLogger(URLInfo.class);
     /**
      * source url
      */
@@ -60,6 +60,7 @@ public class URLInfo extends BrowserInfo {
      * retrying delay;
      */
     private int delay;
+
     public URLInfo(URL source) {
         this.source = source;
     }

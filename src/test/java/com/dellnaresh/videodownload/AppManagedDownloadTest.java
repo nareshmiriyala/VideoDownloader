@@ -25,7 +25,7 @@ public class AppManagedDownloadTest {
     String url;
     String path;
     String vimeoUrl;
-    private Logger logger= LoggerFactory.getLogger(AppManagedDownloadTest.class);
+    private Logger logger = LoggerFactory.getLogger(AppManagedDownloadTest.class);
 
     public void run(String url, File path) {
         try {
@@ -43,10 +43,10 @@ public class AppManagedDownloadTest {
                         case EXTRACTING:
                         case EXTRACTING_DONE:
                         case DONE:
-                            logger.info("Download state {},Downloaded video quality {}",i1.getState(),i1.getVideoQuality());
+                            logger.info("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
                             break;
                         case RETRYING:
-                            logger.info("Retrying downloadVideo with delay {} having state {}",i1.getDelay(),i1.getState());
+                            logger.info("Retrying downloadVideo with delay {} having state {}", i1.getDelay(), i1.getState());
                             break;
                         case STOP:
                             logger.error("Stopping download");
@@ -73,8 +73,8 @@ public class AppManagedDownloadTest {
                                         }
                                     }
                                 }
-                               logger.info(String.format("%s %.2f %s", i1.getState(),
-                                       i2.getCount() / (float) i2.getLength(), parts));
+                                logger.info(String.format("%s %.2f %s", i1.getState(),
+                                        i2.getCount() / (float) i2.getLength(), parts));
                             }
                             break;
                         default:
@@ -106,8 +106,8 @@ public class AppManagedDownloadTest {
             // before start downloadVideo. or just skip it.
             v.extractVideo(user, stop, notify);
 
-            logger.info("Title: {} " , info.getTitle());
-            logger.info("Download URL: {} " , info.getDownloadInfo().getSource());
+            logger.info("Title: {} ", info.getTitle());
+            logger.info("Download URL: {} ", info.getDownloadInfo().getSource());
 
             v.downloadVideo(user, stop, notify);
         } catch (RuntimeException e) {

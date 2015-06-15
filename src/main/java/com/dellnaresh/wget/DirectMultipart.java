@@ -21,16 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectMultipart extends Direct {
 
-    private Logger logger= LoggerFactory.getLogger(DirectMultipart.class);
-
     static public final int THREAD_COUNT = 3;
     static public final int RETRY_DELAY = 10;
-
     LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
-
     boolean fatal = false;
-
     Object lock = new Object();
+    private Logger logger = LoggerFactory.getLogger(DirectMultipart.class);
 
     /**
      * @param info   downloadVideo file information
@@ -65,7 +61,7 @@ public class DirectMultipart extends Direct {
      * @param part
      */
     void downloadPart(DownloadInfo.Part part, AtomicBoolean stop, Runnable notify) throws IOException {
-        logger.info("Downloading video part {}",part.getNumber());
+        logger.info("Downloading video part {}", part.getNumber());
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
 

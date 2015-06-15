@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoInfo {
 
-    private Logger logger= LoggerFactory.getLogger(VideoInfo.class);
+    private Logger logger = LoggerFactory.getLogger(VideoInfo.class);
     // user friendly url (not direct video stream url)
     private URL webUrl;
     private VideoQuality videoQuality;
@@ -24,8 +24,9 @@ public class VideoInfo {
     private States state;
     private Throwable exception;
     private int delay;
+
     /**
-     * @param webUrl   user firendly url
+     * @param webUrl user firendly url
      */
     public VideoInfo(URL webUrl) {
         this.setWebUrl(webUrl);
@@ -111,7 +112,7 @@ public class VideoInfo {
 
         try {
             DownloadInfo dinfo = ei.extractDownloadInfo(this, stop, notify);
-            if(dinfo==null){
+            if (dinfo == null) {
                 logger.error("Not able to extractDownloadInfo downloadVideo info");
                 throw new DownloadError("DownloadInfo object is null");
             }
@@ -122,12 +123,12 @@ public class VideoInfo {
 
             downloadInfo.extract(stop, notify);
         } catch (DownloadInterruptedError e) {
-            logger.error("Download Interrupted Error {}",e);
+            logger.error("Download Interrupted Error {}", e);
             setState(States.STOP, e);
 
             throw e;
         } catch (RuntimeException e) {
-            logger.error("Runtime Exception {}",e);
+            logger.error("Runtime Exception {}", e);
             setState(States.ERROR, e);
 
             throw e;
