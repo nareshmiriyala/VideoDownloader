@@ -143,8 +143,7 @@ public class URLInfo extends BrowserInfo {
 
     // if range failed - do plain download with no retrys's
     protected HttpURLConnection extractRange(URL source) throws IOException {
-        URL url = source;
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
         conn.setConnectTimeout(Direct.CONNECT_TIMEOUT);
         conn.setReadTimeout(Direct.READ_TIMEOUT);
@@ -177,8 +176,7 @@ public class URLInfo extends BrowserInfo {
 
     // if range failed - do plain download with no retrys's
     protected HttpURLConnection extractNormal(URL source) throws IOException {
-        URL url = source;
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
         conn.setConnectTimeout(Direct.CONNECT_TIMEOUT);
         conn.setReadTimeout(Direct.READ_TIMEOUT);
@@ -273,7 +271,7 @@ public class URLInfo extends BrowserInfo {
      * Notify States
      */
     public enum States {
-        EXTRACTING, EXTRACTING_DONE, DOWNLOADING, RETRYING, STOP, ERROR, DONE;
+        EXTRACTING, EXTRACTING_DONE, DOWNLOADING, RETRYING, STOP, ERROR, DONE
     }
 
 }

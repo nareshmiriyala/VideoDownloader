@@ -8,8 +8,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
-import java.io.Console;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -31,7 +29,7 @@ public class GetHtml {
 
             String h = WGet.getHtml(url1);
             List<VideoParser.VideoDownload> sNextVideoURL = new ArrayList<>();
-            Map<String, String> queryMap = youTubeParser.getQueryMap(h);
+            Map<String, String> queryMap = YouTubeParser.getQueryMap(h);
             String urlEncodedFmtStreamMap = queryMap.get("url_encoded_fmt_stream_map");
             Document doc = Jsoup.connect(urlStr).get();
             Elements select = doc.select(urlEncodedFmtStreamMap);

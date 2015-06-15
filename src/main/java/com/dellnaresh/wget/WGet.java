@@ -118,7 +118,8 @@ public class WGet {
     }
 
     public static String getHtml(final DownloadInfo source, final HtmlLoader load, final AtomicBoolean stop) {
-        String html = RetryWrap.wrap(stop, new RetryWrap.WrapReturn<String>() {
+
+        return RetryWrap.wrap(stop, new RetryWrap.WrapReturn<String>() {
             DownloadInfo info = source;
 
             @Override
@@ -182,8 +183,6 @@ public class WGet {
             }
 
         });
-
-        return html;
     }
 
     void create(URL source, File target) {

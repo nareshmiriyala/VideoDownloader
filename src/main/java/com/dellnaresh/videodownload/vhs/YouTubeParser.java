@@ -105,9 +105,8 @@ public class YouTubeParser extends VideoParser {
         logger.info("Extracting links of video ",info.getTitle());
         try {
             try {
-                List<VideoDownload> videoDownloads = extractEmbedded(info, stop, notify);
 
-                return videoDownloads;
+                return extractEmbedded(info, stop, notify);
             } catch (EmbeddingDisabled e) {
                     logger.warn("Cant extract any link using Embedded method ,trying extractHTML");
                 List<VideoDownload> videoDownloads = extractHTML(info, stop, notify);
@@ -209,8 +208,7 @@ public class YouTubeParser extends VideoParser {
                 Element script = doc.select("script").get(i); // Get the script part
 
                 i++;
-                String pattern = SEARCH_PATTERN;
-                Pattern p = Pattern.compile(pattern); // Regex for the value of the key
+                Pattern p = Pattern.compile(SEARCH_PATTERN); // Regex for the value of the key
                 Matcher m = p.matcher(script.html()); // you have to use html here and NOT text! Text will drop the 'key' part
                 while (m.find()) {
                     foundMessage = m.group(1);

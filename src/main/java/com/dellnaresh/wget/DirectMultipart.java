@@ -49,10 +49,8 @@ public class DirectMultipart extends Direct {
         if (!targetFile.exists())
             return false;
 
-        if (targetFile.length() < info.getCount())
-            return false;
+        return targetFile.length() >= info.getCount();
 
-        return true;
     }
 
     /**
@@ -243,10 +241,8 @@ public class DirectMultipart extends Direct {
             throw new DownloadInterruptedError("interupted");
         if (worker.active())
             return false;
-        if (getPart() != null)
-            return false;
+        return getPart() == null;
 
-        return true;
     }
 
     @Override

@@ -19,12 +19,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoDownload {
 
-    VideoInfo info;
-    File targetDir;
+    private VideoInfo info;
+    private File targetDir;
 
-    File targetForce = null;
+    private File targetForce = null;
 
-    File targetFile = null;
+    private File targetFile = null;
     private static final Logger logger= LoggerFactory.getLogger(VideoDownload.class);
 
     /**
@@ -46,7 +46,7 @@ public class VideoDownload {
     }
 
     /**
-     * Drop all foribiden characters from filename
+     * Drop all forbidden characters from filename
      *
      * @param f input file name
      * @return normalized file name

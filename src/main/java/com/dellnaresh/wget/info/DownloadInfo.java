@@ -260,7 +260,7 @@ public class DownloadInfo extends URLInfo {
          * Notify States
          */
         public enum States {
-            QUEUED, DOWNLOADING, RETRYING, ERROR, STOP, DONE;
+            QUEUED, DOWNLOADING, RETRYING, ERROR, STOP, DONE
         }
     }
 }

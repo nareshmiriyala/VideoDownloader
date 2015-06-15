@@ -49,9 +49,8 @@ public class RetryWrap {
 
             try {
                 try {
-                    T t = r.download();
 
-                    return t;
+                    return r.download();
                 } catch (SocketException e) {
                     // enumerate all retry exceptions
                     throw new DownloadRetry(e);
@@ -69,8 +68,6 @@ public class RetryWrap {
                     throw new DownloadRetry(e);
                 } catch (FileNotFoundException e) {
                     throw new DownloadError(e);
-                } catch (RuntimeException e) {
-                    throw e;
                 } catch (IOException e) {
                     throw new DownloadIOError(e);
                 }
