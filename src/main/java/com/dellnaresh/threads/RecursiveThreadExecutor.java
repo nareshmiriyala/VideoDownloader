@@ -6,8 +6,8 @@ import java.util.List;
 public class RecursiveThreadExecutor {
 
     int maxThreads;
-    List<Job> threads = new ArrayList<Job>();
-    List<Task> tasks = new ArrayList<Task>();
+    List<Job> threads = new ArrayList<>();
+    final List<Task> tasks = new ArrayList<>();
     int waitingThreads = 0;
 
     /**

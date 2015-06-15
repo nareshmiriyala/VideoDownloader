@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RecursiveThreadTasks {
     RecursiveThreadExecutor es;
 
-    List<RecursiveThreadExecutor.Task> tasks = new ArrayList<RecursiveThreadExecutor.Task>();
+    List<RecursiveThreadExecutor.Task> tasks = new ArrayList<>();
 
     AtomicBoolean interrupted;
 

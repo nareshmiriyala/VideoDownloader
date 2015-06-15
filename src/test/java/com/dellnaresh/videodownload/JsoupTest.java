@@ -72,9 +72,7 @@ public class JsoupTest {
 
                 FileUtils.copyURLToFile(new URL(result), new File("C:\\\\Naresh Data\\\\Development Software\\\\Videos\\\\Android\\" + "test" + i));
                 i++;
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (MalformedURLException e) {
+            } catch (UnsupportedEncodingException | MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();

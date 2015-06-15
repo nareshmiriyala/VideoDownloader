@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -55,19 +54,7 @@ public class RetryWrap {
                 try {
 
                     return r.download();
-                } catch (SocketException e) {
-                    // enumerate all retry exceptions
-                    throw new DownloadRetry(e);
-                } catch (ProtocolException e) {
-                    // enumerate all retry exceptions
-                    throw new DownloadRetry(e);
-                } catch (HttpRetryException e) {
-                    // enumerate all retry exceptions
-                    throw new DownloadRetry(e);
-                } catch (InterruptedIOException e) {
-                    // enumerate all retry exceptions
-                    throw new DownloadRetry(e);
-                } catch (UnknownHostException e) {
+                } catch (HttpRetryException | UnknownHostException e) {
                     // enumerate all retry exceptions
                     throw new DownloadRetry(e);
                 } catch (FileNotFoundException e) {

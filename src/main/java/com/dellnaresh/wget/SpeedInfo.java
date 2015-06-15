@@ -6,7 +6,7 @@ public class SpeedInfo {
 
     public static final int SAMPLE_LENGTH = 1000;
     public static final int SAMPLE_MAX = 20;
-    protected ArrayList<Sample> samples = new ArrayList<SpeedInfo.Sample>();
+    protected ArrayList<Sample> samples = new ArrayList<>();
     protected long peak;
     // start sample use to calculateMultipartDownloadProgress average speed
     protected Sample start = null;

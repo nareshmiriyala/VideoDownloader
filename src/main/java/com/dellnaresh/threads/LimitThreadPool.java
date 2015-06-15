@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * SynchronousQueue$TransferStack$SNode, boolean, long) line: 458
  */
 public class LimitThreadPool extends ThreadPoolExecutor {
-    Object lock = new Object();
+    final Object lock = new Object();
     int count = 0;
 
     public LimitThreadPool(int maxThreadCount) {

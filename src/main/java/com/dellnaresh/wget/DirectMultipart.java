@@ -25,7 +25,7 @@ public class DirectMultipart extends Direct {
     static public final int RETRY_DELAY = 10;
     LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
     boolean fatal = false;
-    Object lock = new Object();
+    final Object lock = new Object();
     private Logger logger = LoggerFactory.getLogger(DirectMultipart.class);
 
     /**

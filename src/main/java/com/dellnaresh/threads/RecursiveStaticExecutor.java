@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * keep one instance of RecursiveThreadExecutor
  */
 public class RecursiveStaticExecutor {
-    static AtomicInteger counter = new AtomicInteger();
+    static final AtomicInteger counter = new AtomicInteger();
     static RecursiveThreadExecutor es = null;
 
     public RecursiveStaticExecutor() {

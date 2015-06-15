@@ -201,7 +201,7 @@ public class URLInfo extends BrowserInfo {
 
         int len = conn.getContentLength();
         if (len >= 0) {
-            setLength(new Long(len));
+            setLength((long) len);
         }
 
         return conn;

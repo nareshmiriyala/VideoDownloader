@@ -82,7 +82,7 @@ public class DownloadInfo extends URLInfo {
         long count = getLength() / PART_LENGTH + 1;
 
         if (count > 2) {
-            parts = new ArrayList<Part>();
+            parts = new ArrayList<>();
 
             long start = 0;
             for (int i = 0; i < count; i++) {
