@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RetryWrap {
     public static final int RETRY_DELAY = 5;
-    private static Logger logger = LoggerFactory.getLogger(RetryWrap.class);
+    private static final Logger logger = LoggerFactory.getLogger(RetryWrap.class);
 
     static <T> void moved(AtomicBoolean stop, WrapReturn<T> r, DownloadMoved e) {
         logger.info("Calling moved method");
@@ -119,11 +119,11 @@ public class RetryWrap {
     }
 
     public interface WrapReturn<T> {
-        public void retry(int delay, Throwable e);
+        void retry(int delay, Throwable e);
 
-        public void moved(URL url);
+        void moved(URL url);
 
-        public T download() throws IOException;
+        T download() throws IOException;
     }
 
     public interface Wrap {

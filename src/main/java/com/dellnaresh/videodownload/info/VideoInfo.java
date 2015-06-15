@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoInfo {
 
-    private Logger logger = LoggerFactory.getLogger(VideoInfo.class);
+    private final Logger logger = LoggerFactory.getLogger(VideoInfo.class);
     // user friendly url (not direct video stream url)
     private URL webUrl;
     private VideoQuality videoQuality;

@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class VideoDownload {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoDownload.class);
-    private VideoInfo videoInfo;
+    private final VideoInfo videoInfo;
     private File targetDir;
     private File targetForce = null;
     private File targetFile = null;

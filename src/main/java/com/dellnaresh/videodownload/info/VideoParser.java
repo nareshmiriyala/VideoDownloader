@@ -45,8 +45,8 @@ public abstract class VideoParser {
     }
 
     static public class VideoDownload {
-        public VideoInfo.VideoQuality videoQuality;
-        public URL url;
+        public final VideoInfo.VideoQuality videoQuality;
+        public final URL url;
 
         public VideoDownload(VideoInfo.VideoQuality videoQuality, URL url) {
             this.videoQuality = videoQuality;

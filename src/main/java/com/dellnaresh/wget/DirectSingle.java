@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectSingle extends Direct {
 
-    private static Logger logger = LoggerFactory.getLogger(DirectSingle.class);
+    private static final Logger logger = LoggerFactory.getLogger(DirectSingle.class);
 
     /**
      * @param downloadInfo downloadVideo file information

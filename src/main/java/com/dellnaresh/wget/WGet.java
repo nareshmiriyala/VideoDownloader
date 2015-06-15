@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WGet {
-    private static Logger logger = LoggerFactory.getLogger(WGet.class);
+    private static final Logger logger = LoggerFactory.getLogger(WGet.class);
     private Direct direct;
     private File targetFile;
     private DownloadInfo info;
@@ -236,16 +236,16 @@ public class WGet {
          * @param delay
          * @param e
          */
-        public void notifyRetry(int delay, Throwable e);
+        void notifyRetry(int delay, Throwable e);
 
         /**
          * start downloading
          */
-        public void notifyDownloading();
+        void notifyDownloading();
 
         /**
          * document moved, relocating
          */
-        public void notifyMoved();
+        void notifyMoved();
     }
 }

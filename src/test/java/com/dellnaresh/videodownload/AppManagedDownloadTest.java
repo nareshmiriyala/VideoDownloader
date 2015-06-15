@@ -25,7 +25,7 @@ public class AppManagedDownloadTest {
     String url;
     String path;
     String vimeoUrl;
-    private Logger logger = LoggerFactory.getLogger(AppManagedDownloadTest.class);
+    private final Logger logger = LoggerFactory.getLogger(AppManagedDownloadTest.class);
 
     public void run(String url, File path) {
         try {

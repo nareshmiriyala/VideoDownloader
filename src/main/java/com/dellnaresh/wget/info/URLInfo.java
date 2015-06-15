@@ -17,11 +17,11 @@ import java.util.regex.Pattern;
  * URLInfo - keep all information about source in one place. Thread safe.
  */
 public class URLInfo extends BrowserInfo {
-    private Logger logger = LoggerFactory.getLogger(URLInfo.class);
+    private final Logger logger = LoggerFactory.getLogger(URLInfo.class);
     /**
      * source url
      */
-    private URL source;
+    private final URL source;
 
     /**
      * have been extracted?

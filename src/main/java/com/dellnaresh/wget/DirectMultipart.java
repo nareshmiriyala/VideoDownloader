@@ -23,10 +23,10 @@ public class DirectMultipart extends Direct {
 
     static public final int THREAD_COUNT = 3;
     static public final int RETRY_DELAY = 10;
-    LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
+    final LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
     boolean fatal = false;
     final Object lock = new Object();
-    private Logger logger = LoggerFactory.getLogger(DirectMultipart.class);
+    private final Logger logger = LoggerFactory.getLogger(DirectMultipart.class);
 
     /**
      * @param info   downloadVideo file information

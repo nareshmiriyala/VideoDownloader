@@ -56,7 +56,7 @@ public class YouTubeParser extends VideoParser {
         }
     };
     private static final Logger logger = LoggerFactory.getLogger(YouTubeParser.class);
-    URL source;
+    final URL source;
 
     public YouTubeParser(URL input) {
         this.source = input;
@@ -465,7 +465,7 @@ public class YouTubeParser extends VideoParser {
     }
 
     static class DecryptSignature {
-        String sig;
+        final String sig;
 
         public DecryptSignature(String signature) {
             this.sig = signature;

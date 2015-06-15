@@ -116,7 +116,7 @@ public class LimitThreadPool extends ThreadPoolExecutor {
     }
 
     protected static class SafetyCheck implements Runnable {
-        Runnable r;
+        final Runnable r;
 
         public SafetyCheck(Runnable r) {
             this.r = r;

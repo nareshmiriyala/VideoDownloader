@@ -22,13 +22,12 @@ import java.util.regex.Pattern;
  */
 public class JsoupTest {
     private static final Logger logger = LoggerFactory.getLogger(JsoupTest.class);
-    private static String SEARCH_PATTERN = "\"url_encoded_fmt_stream_map\":(.+?),";
-    private static String URL_PATTERN = "url=(.+?),";
 
     public static void main(String[] args) {
         try {
             Document document = Jsoup.connect("https://www.youtube.com/watch?v=7M-jsjLB20Y").get();
 //            System.out.println(document.html());
+            String SEARCH_PATTERN = "\"url_encoded_fmt_stream_map\":(.+?),";
             getSearchMessage(document, SEARCH_PATTERN);
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,6 +60,7 @@ public class JsoupTest {
     }
 
     private static void findLinks(String script) {
+        String URL_PATTERN = "url=(.+?),";
         Pattern p = Pattern.compile(URL_PATTERN); // Regex for the value of the key
         Matcher m = p.matcher(script);
         int i = 0;

@@ -6,7 +6,7 @@ public class SpeedInfo {
 
     public static final int SAMPLE_LENGTH = 1000;
     public static final int SAMPLE_MAX = 20;
-    protected ArrayList<Sample> samples = new ArrayList<>();
+    protected final ArrayList<Sample> samples = new ArrayList<>();
     protected long peak;
     // start sample use to calculateMultipartDownloadProgress average speed
     protected Sample start = null;
@@ -188,9 +188,9 @@ public class SpeedInfo {
 
     public class Sample {
         // bytes downloaded
-        public long current;
+        public final long current;
         // current time
-        public long now;
+        public final long now;
         // start block? used to mark block after downloadVideo has been altered /
         // restarted
         public boolean start;

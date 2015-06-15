@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class VimeoParser extends VideoParser {
 
-    URL source;
+    final URL source;
 
     public VimeoParser(URL input) {
         this.source = input;

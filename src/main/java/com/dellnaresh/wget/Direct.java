@@ -21,7 +21,7 @@ public abstract class Direct {
      */
     static public final int BUF_SIZE = 4 * 1024;
     File target = null;
-    DownloadInfo downloadInfo;
+    final DownloadInfo downloadInfo;
 
     /**
      * @param downloadInfo downloadVideo file information

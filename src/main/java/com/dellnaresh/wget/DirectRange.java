@@ -17,7 +17,7 @@ import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectRange extends Direct {
-    private static Logger logger = LoggerFactory.getLogger(DirectRange.class);
+    private static final Logger logger = LoggerFactory.getLogger(DirectRange.class);
 
     public DirectRange(DownloadInfo downloadInfo, File target) {
         super(downloadInfo, target);
