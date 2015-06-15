@@ -1,6 +1,9 @@
 package com.dellnaresh.wget;
 
+import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.ex.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,28 +12,30 @@ import java.net.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RetryWrap {
-
+    private static Logger logger= LoggerFactory.getLogger(RetryWrap.class);
     public static final int RETRY_DELAY = 10;
 
     static <T> void moved(AtomicBoolean stop, WrapReturn<T> r, DownloadMoved e) {
-        if (stop.get())
-            throw new DownloadInterruptedError("stop");
-
-        if (Thread.currentThread().isInterrupted())
-            throw new DownloadInterruptedError("interrrupted");
+        logger.info("Calling moved method");
+        hadleExceptions(stop);
 
         r.moved(e.getMoved());
     }
 
+    private static void hadleExceptions(AtomicBoolean stop) {
+        if (stop.get())
+            throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
+
+        if (Thread.currentThread().isInterrupted())
+            throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
+    }
+
     static <T> void retry(AtomicBoolean stop, WrapReturn<T> r, RuntimeException e) {
+        logger.info("Calling retry method");
         for (int i = RETRY_DELAY; i >= 0; i--) {
             r.retry(i, e);
 
-            if (stop.get())
-                throw new DownloadInterruptedError("stop");
-
-            if (Thread.currentThread().isInterrupted())
-                throw new DownloadInterruptedError("interrrupted");
+            hadleExceptions(stop);
 
             try {
                 Thread.sleep(1000);
@@ -41,11 +46,10 @@ public class RetryWrap {
     }
 
     public static <T> T run(AtomicBoolean stop, WrapReturn<T> r) {
+        logger.info("calling run");
         while (true) {
-            if (stop.get())
-                throw new DownloadInterruptedError("stop");
-            if (Thread.currentThread().isInterrupted())
-                throw new DownloadInterruptedError("interrupted");
+
+            hadleExceptions(stop);
 
             try {
                 try {
@@ -84,6 +88,7 @@ public class RetryWrap {
     }
 
     public static void wrap(AtomicBoolean stop, final Wrap r) {
+        logger.info("Calling wrap");
         WrapReturn<Object> rr = new WrapReturn<Object>() {
 
             @Override
@@ -107,7 +112,8 @@ public class RetryWrap {
         com.dellnaresh.wget.RetryWrap.run(stop, rr);
     }
 
-    public static void check(HttpURLConnection c) throws IOException {
+    public static void checkConnection(HttpURLConnection c) throws IOException {
+        logger.info("calling check connection");
         int code = c.getResponseCode();
         switch (code) {
             case HttpURLConnection.HTTP_OK:

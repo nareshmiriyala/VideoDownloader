@@ -52,14 +52,14 @@ public class VimeoParser extends VideoParser {
     }
 
     @Override
-    public List<VideoDownload> extractLinks(final VideoInfo info, final AtomicBoolean stop, final Runnable notify) {
+    public List<VideoDownload> extractLinks(final VideoInfo videoInfo, final AtomicBoolean stop, final Runnable notify) {
         List<VideoDownload> list = new ArrayList<>();
 
         try {
             String id;
             String clip;
             {
-                id = extractId(info.getWeb());
+                id = extractId(videoInfo.getWebUrl());
                 if (id == null) {
                     throw new DownloadError("unknown url");
                 }
@@ -71,19 +71,19 @@ public class VimeoParser extends VideoParser {
             String html = WGet.getHtml(url, new HtmlLoader() {
                 @Override
                 public void notifyRetry(int delay, Throwable e) {
-                    info.setDelay(delay, e);
+                    videoInfo.setDelay(delay, e);
                     notify.run();
                 }
 
                 @Override
                 public void notifyDownloading() {
-                    info.setState(VideoInfo.States.EXTRACTING);
+                    videoInfo.setState(VideoInfo.States.EXTRACTING);
                     notify.run();
                 }
 
                 @Override
                 public void notifyMoved() {
-                    info.setState(VideoInfo.States.RETRYING);
+                    videoInfo.setState(VideoInfo.States.RETRYING);
                     notify.run();
                 }
             }, stop);
@@ -103,19 +103,19 @@ public class VimeoParser extends VideoParser {
             String htmlConfig = WGet.getHtml(new URL(config), new HtmlLoader() {
                 @Override
                 public void notifyRetry(int delay, Throwable e) {
-                    info.setDelay(delay, e);
+                    videoInfo.setDelay(delay, e);
                     notify.run();
                 }
 
                 @Override
                 public void notifyDownloading() {
-                    info.setState(VideoInfo.States.EXTRACTING);
+                    videoInfo.setState(VideoInfo.States.EXTRACTING);
                     notify.run();
                 }
 
                 @Override
                 public void notifyMoved() {
-                    info.setState(VideoInfo.States.RETRYING);
+                    videoInfo.setState(VideoInfo.States.RETRYING);
                     notify.run();
                 }
             }, stop);
@@ -124,13 +124,13 @@ public class VimeoParser extends VideoParser {
 
             String icon = data.video.thumbs.values().iterator().next();
 
-            info.setTitle(data.video.title);
+            videoInfo.setTitle(data.video.title);
 
             list.add(new VideoDownload(VideoInfo.VideoQuality.p1080, new URL(data.request.files.h264.hd.url)));
 
             list.add(new VideoDownload(VideoInfo.VideoQuality.p480, new URL(data.request.files.h264.sd.url)));
 
-            info.setIcon(new URL(icon));
+            videoInfo.setIcon(new URL(icon));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

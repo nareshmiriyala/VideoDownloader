@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoDownload {
 
-    private VideoInfo info;
+    private VideoInfo videoInfo;
     private File targetDir;
 
     private File targetForce = null;
@@ -28,7 +28,7 @@ public class VideoDownload {
     private static final Logger logger= LoggerFactory.getLogger(VideoDownload.class);
 
     /**
-     * extract video information constructor
+     * extractDownloadInfo video information constructor
      *
      * @param source
      */
@@ -40,45 +40,45 @@ public class VideoDownload {
         this(new VideoInfo(source), targetDir);
     }
 
-    public VideoDownload(VideoInfo info, File targetDir) {
-        this.info = info;
+    public VideoDownload(VideoInfo videoInfo, File targetDir) {
+        this.videoInfo = videoInfo;
         this.targetDir = targetDir;
     }
 
     /**
      * Drop all forbidden characters from filename
      *
-     * @param f input file name
+     * @param fileName input file name
      * @return normalized file name
      */
-    static String replaceBadChars(String f) {
+    static String replaceBadChars(String fileName) {
         String replace = " ";
-        f = f.replaceAll("/", replace);
-        f = f.replaceAll("\\\\", replace);
-        f = f.replaceAll(":", replace);
-        f = f.replaceAll("\\?", replace);
-        f = f.replaceAll("\"", replace);
-        f = f.replaceAll("\\*", replace);
-        f = f.replaceAll("<", replace);
-        f = f.replaceAll(">", replace);
-        f = f.replaceAll("\\|", replace);
-        f = f.trim();
-        f = StringUtils.removeEnd(f, ".");
-        f = f.trim();
+        fileName = fileName.replaceAll("/", replace);
+        fileName = fileName.replaceAll("\\\\", replace);
+        fileName = fileName.replaceAll(":", replace);
+        fileName = fileName.replaceAll("\\?", replace);
+        fileName = fileName.replaceAll("\"", replace);
+        fileName = fileName.replaceAll("\\*", replace);
+        fileName = fileName.replaceAll("<", replace);
+        fileName = fileName.replaceAll(">", replace);
+        fileName = fileName.replaceAll("\\|", replace);
+        fileName = fileName.trim();
+        fileName = StringUtils.removeEnd(fileName, ".");
+        fileName = fileName.trim();
 
         String ff;
-        while (!(ff = f.replaceAll("  ", " ")).equals(f)) {
-            f = ff;
+        while (!(ff = fileName.replaceAll("  ", " ")).equals(fileName)) {
+            fileName = ff;
         }
 
-        return f;
+        return fileName;
     }
 
-    static String maxFileNameLength(String str) {
+    static String maxFileNameLength(String fileName) {
         int max = 255;
-        if (str.length() > max)
-            str = str.substring(0, max);
-        return str;
+        if (fileName.length() > max)
+            fileName = fileName.substring(0, max);
+        return fileName;
     }
 
     public void setTargetDir(File targetDir) {
@@ -99,19 +99,19 @@ public class VideoDownload {
     }
 
     public VideoInfo getVideo() {
-        return info;
+        return videoInfo;
     }
 
-    public void download() {
-        download(null, new AtomicBoolean(false), new Runnable() {
+    public void downloadVideo() {
+        downloadVideo(null, new AtomicBoolean(false), new Runnable() {
             @Override
             public void run() {
             }
         });
     }
 
-    public void download(VideoParser user) {
-        download(user, new AtomicBoolean(false), new Runnable() {
+    public void download(VideoParser videoParser) {
+        downloadVideo(videoParser, new AtomicBoolean(false), new Runnable() {
             @Override
             public void run() {
             }
@@ -127,8 +127,8 @@ public class VideoDownload {
         return true;
     }
 
-    void retry(VideoParser user, AtomicBoolean stop, Runnable notify, Throwable e) {
-        logger.info("Starting retry of video ");
+    void retryDownload(VideoParser videoParser, AtomicBoolean stop, Runnable notify, Throwable e) {
+        logger.info("Starting retryDownload of video ");
         boolean retracted = false;
 
         while (!retracted) {
@@ -138,7 +138,7 @@ public class VideoDownload {
                 if (Thread.currentThread().isInterrupted())
                     throw new DownloadInterruptedError("interrupted");
 
-                info.setDelay(i, e);
+                videoInfo.setDelay(i, e);
                 notify.run();
 
                 try {
@@ -149,17 +149,17 @@ public class VideoDownload {
             }
 
             try {
-                // if we continue to download from old source, and this proxy
+                // if we continue to downloadVideo from old source, and this proxy
                 // server is
-                // down we have to try to extract new info and try to resume
-                // download
+                // down we have to try to extractDownloadInfo new videoInfo and try to resumeDownload
+                // downloadVideo
 
-                DownloadInfo infoOld = info.getInfo();
-                info.extract(user, stop, notify);
-                DownloadInfo infoNew = info.getInfo();
+                DownloadInfo oldDownloadInfo = videoInfo.getDownloadInfo();
+                videoInfo.extractDownloadInfo(videoParser, stop, notify);
+                DownloadInfo newDownloadInfo = videoInfo.getDownloadInfo();
 
-                if (infoOld != null && infoOld.resume(infoNew)) {
-                    infoNew.copy(infoOld);
+                if (oldDownloadInfo != null && oldDownloadInfo.resumeDownload(newDownloadInfo)) {
+                    newDownloadInfo.copy(oldDownloadInfo);
                 } else {
                     if (targetFile != null) {
                         FileUtils.deleteQuietly(targetFile);
@@ -170,30 +170,30 @@ public class VideoDownload {
                 retracted = true;
             } catch (DownloadIOCodeError ee) {
                 if (retry(ee)) {
-                    info.setState(VideoInfo.States.RETRYING, ee);
+                    videoInfo.setState(VideoInfo.States.RETRYING, ee);
                     notify.run();
                 } else {
                     throw ee;
                 }
             } catch (DownloadRetry ee) {
-                info.setState(VideoInfo.States.RETRYING, ee);
+                videoInfo.setState(VideoInfo.States.RETRYING, ee);
                 notify.run();
             }
         }
     }
 
-    void target(DownloadInfo dinfo) {
+    void createTargetFile(DownloadInfo downloadInfo) {
         if (targetForce != null) {
             targetFile = targetForce;
 
-            if (dinfo.multipart()) {
-                if (!DirectMultipart.canResume(dinfo, targetFile))
+            if (downloadInfo.isMultiPart()) {
+                if (!DirectMultipart.canResume(downloadInfo, targetFile))
                     targetFile = null;
-            } else if (dinfo.getRange()) {
-                if (!DirectRange.canResume(dinfo, targetFile))
+            } else if (downloadInfo.getRange()) {
+                if (!DirectRange.canResume(downloadInfo, targetFile))
                     targetFile = null;
             } else {
-                if (!DirectSingle.canResume(dinfo, targetFile))
+                if (!DirectSingle.canResume(downloadInfo, targetFile))
                     targetFile = null;
             }
         }
@@ -203,18 +203,18 @@ public class VideoDownload {
 
             Integer idupcount = 0;
 
-            String sfilename = replaceBadChars(info.getTitle());
+            String sfilename = replaceBadChars(videoInfo.getTitle());
 
             sfilename = maxFileNameLength(sfilename);
 
-            String ct = dinfo.getContentType();
-            if (ct == null)
+            String contentType = downloadInfo.getContentType();
+            if (contentType == null)
                 throw new DownloadRetry("null content type");
-             if(ct.contains("text/html")){
+             if(contentType.contains("text/html")){
                  String result = sfilename.replaceAll("[-+.^:,]","");
                  f = new File(targetDir, result+".mp4");
              }else {
-                 String ext = ct.replaceFirst("video/", "").replaceAll("x-", "");
+                 String ext = contentType.replaceFirst("video/", "").replaceAll("x-", "");
 
                  do {
                      String add = idupcount > 0 ? " (".concat(idupcount.toString()).concat(")") : "";
@@ -226,9 +226,9 @@ public class VideoDownload {
 
             targetFile = f;
 
-            // if we dont have resume file (targetForce==null) then we shall
+            // if we dont have resumeDownload file (targetForce==null) then we shall
             // start over.
-            dinfo.reset();
+            downloadInfo.reset();
         }
     }
 
@@ -251,7 +251,7 @@ public class VideoDownload {
     }
 
     /**
-     * return status of download information. subclassing for VideoInfo.empty();
+     * return status of downloadVideo information. subclassing for VideoInfo.empty();
      *
      * @return
      */
@@ -259,44 +259,44 @@ public class VideoDownload {
         return getVideo().empty();
     }
 
-    public void extract() {
-        extract(new AtomicBoolean(false), new Runnable() {
+    public void extractVideo() {
+        extractVideo(new AtomicBoolean(false), new Runnable() {
             @Override
             public void run() {
             }
         });
     }
 
-    public void extract(AtomicBoolean stop, Runnable notify) {
-        extract(null, stop, notify);
+    public void extractVideo(AtomicBoolean stop, Runnable notify) {
+        extractVideo(null, stop, notify);
     }
 
     /**
-     * extract video information, retry until success
+     * extractDownloadInfo video information, retryDownload until success
      *
      * @param stop
      * @param notify
      */
-    public void extract(VideoParser user, AtomicBoolean stop, Runnable notify) {
-        logger.info("Starting extraction of video {}",info.getTitle());
+    public void extractVideo(VideoParser videoParser, AtomicBoolean stop, Runnable notify) {
+        logger.info("Starting extraction of video {}", videoInfo.getTitle());
         while (done(stop)) {
             try {
-                if (info.empty()) {
-                    info.setState(VideoInfo.States.EXTRACTING);
-                    info.extract(user, stop, notify);
-                    info.setState(VideoInfo.States.EXTRACTING_DONE);
+                if (videoInfo.empty()) {
+                    videoInfo.setState(VideoInfo.States.EXTRACTING);
+                    videoInfo.extractDownloadInfo(videoParser, stop, notify);
+                    videoInfo.setState(VideoInfo.States.EXTRACTING_DONE);
                     notify.run();
                 }
                 return;
             } catch (DownloadRetry | DownloadIOError e) {
-                retry(user, stop, notify, e);
+                retryDownload(videoParser, stop, notify, e);
             } catch (DownloadMultipartError e) {
                 checkFileNotFound(e);
                 checkRetry(e);
-                retry(user, stop, notify, e);
+                retryDownload(videoParser, stop, notify, e);
             } catch (DownloadIOCodeError e) {
                 if (retry(e))
-                    retry(user, stop, notify, e);
+                    retryDownload(videoParser, stop, notify, e);
                 else
                     throw e;
             }
@@ -312,7 +312,7 @@ public class VideoDownload {
     }
 
     /**
-     * check if all parts has the same filenotfound exception. if so throw DownloadError.FilenotFoundexcepiton
+     * checkConnection if all parts has the same filenotfound exception. if so throw DownloadError.FilenotFoundexcepiton
      *
      * @param e
      */
@@ -333,7 +333,7 @@ public class VideoDownload {
                     // save it for later checks
                     f = (FileNotFoundException) ee.getException().getCause();
                 } else {
-                    // check filenotfound error message is it the same?
+                    // checkConnection filenotfound error message is it the same?
                     FileNotFoundException ff = (FileNotFoundException) ee.getException().getCause();
                     if (!ff.getMessage().equals(f.getMessage())) {
                         // if the filenotfound exception message is not the
@@ -351,43 +351,43 @@ public class VideoDownload {
     }
 
     public void download(final AtomicBoolean stop, final Runnable notify) {
-        download(null, stop, notify);
+        downloadVideo(null, stop, notify);
     }
 
-    public void download(VideoParser user, final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Starting download of video {}",info.getTitle());
+    public void downloadVideo(VideoParser user, final AtomicBoolean stop, final Runnable notify) {
+        logger.info("Starting downloadVideo of video {}", videoInfo.getTitle());
         if (targetFile == null && targetForce == null && targetDir == null) {
-            throw new RuntimeException("Set download file or directory first");
+            throw new RuntimeException("Set downloadVideo file or directory first");
         }
 
         try {
             if (empty()) {
-                extract(user, stop, notify);
+                extractVideo(user, stop, notify);
             }
 
             while (done(stop)) {
                 try {
-                    final DownloadInfo dinfo = info.getInfo();
+                    final DownloadInfo dinfo = videoInfo.getDownloadInfo();
 
 //                    if (dinfo.getContentType() == null || !dinfo.getContentType().contains("video/")) {
-//                        throw new DownloadRetry("unable to download video, bad content");
+//                        throw new DownloadRetry("unable to downloadVideo video, bad content");
 //                    }
 
-                    target(dinfo);
+                    createTargetFile(dinfo);
 
                     Direct direct;
 
-                    if (dinfo.multipart()) {
+                    if (dinfo.isMultiPart()) {
                         // multi part? overwrite.
                         direct = new DirectMultipart(dinfo, targetFile);
                     } else if (dinfo.getRange()) {
-                        // range download? try to resume download from last
+                        // range downloadVideo? try to resumeDownload downloadVideo from last
                         // position
                         if (targetFile.exists() && targetFile.length() != dinfo.getCount())
                             targetFile = null;
                         direct = new DirectRange(dinfo, targetFile);
                     } else {
-                        // single download? overwrite file
+                        // single downloadVideo? overwrite file
                         direct = new DirectSingle(dinfo, targetFile);
                     }
 
@@ -396,11 +396,11 @@ public class VideoDownload {
                         public void run() {
                             switch (dinfo.getState()) {
                                 case DOWNLOADING:
-                                    info.setState(VideoInfo.States.DOWNLOADING);
+                                    videoInfo.setState(VideoInfo.States.DOWNLOADING);
                                     notify.run();
                                     break;
                                 case RETRYING:
-                                    info.setDelay(dinfo.getDelay(), dinfo.getException());
+                                    videoInfo.setDelay(dinfo.getDelay(), dinfo.getException());
                                     notify.run();
                                     break;
                                 default:
@@ -412,31 +412,31 @@ public class VideoDownload {
                         }
                     });
 
-                    info.setState(VideoInfo.States.DONE);
+                    videoInfo.setState(VideoInfo.States.DONE);
                     notify.run();
 
                     // break while()
                     return;
                 } catch (DownloadRetry | DownloadIOError e) {
-                    retry(user, stop, notify, e);
+                    retryDownload(user, stop, notify, e);
                 } catch (DownloadMultipartError e) {
                     checkFileNotFound(e);
                     checkRetry(e);
-                    retry(user, stop, notify, e);
+                    retryDownload(user, stop, notify, e);
                 } catch (DownloadIOCodeError e) {
                     if (retry(e))
-                        retry(user, stop, notify, e);
+                        retryDownload(user, stop, notify, e);
                     else
                         throw e;
                 }
             }
         } catch (DownloadInterruptedError e) {
-            info.setState(VideoInfo.States.STOP, e);
+            videoInfo.setState(VideoInfo.States.STOP, e);
             notify.run();
 
             throw e;
         } catch (RuntimeException e) {
-            info.setState(VideoInfo.States.ERROR, e);
+            videoInfo.setState(VideoInfo.States.ERROR, e);
             notify.run();
 
             throw e;

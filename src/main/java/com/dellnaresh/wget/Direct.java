@@ -21,17 +21,15 @@ public abstract class Direct {
      */
     static public final int BUF_SIZE = 4 * 1024;
     File target = null;
-    DownloadInfo info;
+    DownloadInfo downloadInfo;
 
     /**
-     * @param info   download file information
+     * @param downloadInfo   downloadVideo file information
      * @param target target file
-     * @param stop   multithread stop command
-     * @param notify progress notify call
      */
-    public Direct(DownloadInfo info, File target) {
+    public Direct(DownloadInfo downloadInfo, File target) {
         this.target = target;
-        this.info = info;
+        this.downloadInfo = downloadInfo;
     }
 
     abstract public void download(AtomicBoolean stop, Runnable notify);

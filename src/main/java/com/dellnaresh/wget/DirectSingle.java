@@ -1,9 +1,12 @@
 package com.dellnaresh.wget;
 
+import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.DownloadInfo;
 import com.dellnaresh.wget.info.URLInfo;
 import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,26 +18,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectSingle extends Direct {
 
+    private static Logger logger= LoggerFactory.getLogger(DirectSingle.class);
     /**
-     * @param info   download file information
+     * @param downloadInfo   downloadVideo file information
      * @param target target file
-     * @param stop   multithread stop command
-     * @param notify progress notify call
      */
-    public DirectSingle(DownloadInfo info, File target) {
-        super(info, target);
+    public DirectSingle(DownloadInfo downloadInfo, File target) {
+        super(downloadInfo, target);
     }
 
     /**
-     * check existing file for download resume. for single download it will
-     * check file dose not exist or zero size. so we can resume download.
+     * checkConnection existing file for downloadVideo resumeDownload. for single downloadVideo it will
+     * checkConnection file dose not exist or zero size. so we can resumeDownload downloadVideo.
      *
-     * @param info
+     * @param downloadInfo
      * @param targetFile
-     * @return return true - if all ok, false - if download can not be restored.
+     * @return return true - if all ok, false - if downloadVideo can not be restored.
      */
-    public static boolean canResume(DownloadInfo info, File targetFile) {
-        if (info.getCount() != 0)
+    public static boolean canResume(DownloadInfo downloadInfo, File targetFile) {
+        logger.info("Calling canResume method");
+        if (downloadInfo.getCount() != 0)
             return false;
 
         if (targetFile.exists()) {
@@ -46,15 +49,17 @@ public class DirectSingle extends Direct {
     }
 
     void downloadFile(DownloadInfo info,AtomicBoolean stop,Runnable notify) throws IOException{
+        logger.info("Calling downloadFile method");
         if (stop.get())
-            throw new DownloadInterruptedError("stop");
+            throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
         if (Thread.interrupted())
-            throw new DownloadInterruptedError("interrupted");
+            throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
 
         FileUtils.copyURLToFile(info.getSource(), target);
     }
 
     void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
+        logger.info("Calling downloadPart method");
         RandomAccessFile fos = null;
 
         try {
@@ -65,9 +70,9 @@ public class DirectSingle extends Direct {
             conn.setConnectTimeout(CONNECT_TIMEOUT);
             conn.setReadTimeout(READ_TIMEOUT);
 
-            conn.setRequestProperty("User-Agent", info.getUserAgent());
-            if (info.getReferer() != null)
-                conn.setRequestProperty("Referer", info.getReferer().toExternalForm());
+            conn.setRequestProperty(Constants.USER_AGENT, info.getUserAgent());
+            if (info.getReferrer() != null)
+                conn.setRequestProperty(Constants.REFERRER, info.getReferrer().toExternalForm());
 
             File f = target;
             info.setCount(0);
@@ -78,7 +83,7 @@ public class DirectSingle extends Direct {
             byte[] bytes = new byte[BUF_SIZE];
             int read = 0;
 
-            RetryWrap.check(conn);
+            RetryWrap.checkConnection(conn);
 
             BufferedInputStream binaryreader = new BufferedInputStream(conn.getInputStream());
 
@@ -89,9 +94,9 @@ public class DirectSingle extends Direct {
                 notify.run();
 
                 if (stop.get())
-                    throw new DownloadInterruptedError("stop");
+                    throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
                 if (Thread.interrupted())
-                    throw new DownloadInterruptedError("interrupted");
+                    throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
             }
 
             binaryreader.close();
@@ -103,41 +108,42 @@ public class DirectSingle extends Direct {
 
     @Override
     public void download(final AtomicBoolean stop, final Runnable notify) {
-        info.setState(URLInfo.States.DOWNLOADING);
+        logger.info("Calling download method");
+        downloadInfo.setState(URLInfo.States.DOWNLOADING);
         notify.run();
 
         try {
             RetryWrap.wrap(stop, new RetryWrap.Wrap() {
                 @Override
                 public void download() throws IOException {
-                    info.setState(URLInfo.States.DOWNLOADING);
+                    downloadInfo.setState(URLInfo.States.DOWNLOADING);
                     notify.run();
-                    downloadFile(info,stop,notify);
-//                    downloadPart(info, stop, notify);
+                    downloadFile(downloadInfo,stop,notify);
+//                    downloadPart(downloadInfo, stop, notify);
                 }
 
                 @Override
                 public void retry(int delay, Throwable e) {
-                    info.setDelay(delay, e);
+                    downloadInfo.setDelay(delay, e);
                     notify.run();
                 }
 
                 @Override
                 public void moved(URL url) {
-                    info.setState(URLInfo.States.RETRYING);
+                    downloadInfo.setState(URLInfo.States.RETRYING);
                     notify.run();
                 }
             });
 
-            info.setState(URLInfo.States.DONE);
+            downloadInfo.setState(URLInfo.States.DONE);
             notify.run();
         } catch (DownloadInterruptedError e) {
-            info.setState(URLInfo.States.STOP);
+            downloadInfo.setState(URLInfo.States.STOP);
             notify.run();
 
             throw e;
         } catch (RuntimeException e) {
-            info.setState(URLInfo.States.ERROR);
+            downloadInfo.setState(URLInfo.States.ERROR);
             notify.run();
 
             throw e;

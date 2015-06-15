@@ -1,9 +1,12 @@
 package com.dellnaresh.wget;
 
+import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.DownloadInfo;
 import com.dellnaresh.wget.info.URLInfo;
 import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -14,31 +17,33 @@ import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectRange extends Direct {
-
-    public DirectRange(DownloadInfo info, File target) {
-        super(info, target);
+    private static Logger logger= LoggerFactory.getLogger(DirectRange.class);
+    public DirectRange(DownloadInfo downloadInfo, File target) {
+        super(downloadInfo, target);
     }
 
     /**
-     * check existing file for download resume. for range download it will check
+     * checkConnection existing file for downloadVideo resumeDownload. for range downloadVideo it will checkConnection
      * file size and inside state. they sould be equal.
      *
-     * @param info
+     * @param downloadInfo
      * @param targetFile
-     * @return return true - if all ok, false - if download can not be restored.
+     * @return return true - if all ok, false - if downloadVideo can not be restored.
      */
-    public static boolean canResume(DownloadInfo info, File targetFile) {
+    public static boolean canResume(DownloadInfo downloadInfo, File targetFile) {
+        logger.info("Calling canResume method");
         if (targetFile.exists()) {
-            if (info.getCount() != targetFile.length())
+            if (downloadInfo.getCount() != targetFile.length())
                 return false;
         } else {
-            if (info.getCount() > 0)
+            if (downloadInfo.getCount() > 0)
                 return false;
         }
         return true;
     }
 
     public void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
+        logger.info("Calling download Part method");
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
 
@@ -50,9 +55,9 @@ public class DirectRange extends Direct {
             conn.setConnectTimeout(CONNECT_TIMEOUT);
             conn.setReadTimeout(READ_TIMEOUT);
 
-            conn.setRequestProperty("User-Agent", info.getUserAgent());
-            if (info.getReferer() != null)
-                conn.setRequestProperty("Referer", info.getReferer().toExternalForm());
+            conn.setRequestProperty(Constants.USER_AGENT, info.getUserAgent());
+            if (info.getReferrer() != null)
+                conn.setRequestProperty(Constants.REFERRER, info.getReferrer().toExternalForm());
 
             File f = target;
             if (!f.exists())
@@ -74,7 +79,7 @@ public class DirectRange extends Direct {
             byte[] bytes = new byte[BUF_SIZE];
             int read = 0;
 
-            RetryWrap.check(conn);
+            RetryWrap.checkConnection(conn);
 
             binaryreader = new BufferedInputStream(conn.getInputStream());
 
@@ -84,10 +89,14 @@ public class DirectRange extends Direct {
                 info.setCount(info.getCount() + read);
                 notify.run();
 
-                if (stop.get())
-                    throw new DownloadInterruptedError("stop");
-                if (Thread.interrupted())
-                    throw new DownloadInterruptedError("interrupted");
+                if (stop.get()) {
+                    logger.error("DownloadInterruptedError called stop");
+                    throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
+                }
+                if (Thread.interrupted()) {
+                    logger.error("DownloadInterruptedError thread interrupted");
+                    throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
+                }
             }
 
         } finally {
@@ -100,41 +109,42 @@ public class DirectRange extends Direct {
 
     @Override
     public void download(final AtomicBoolean stop, final Runnable notify) {
-        info.setState(URLInfo.States.DOWNLOADING);
+        logger.info("Called download method");
+        downloadInfo.setState(URLInfo.States.DOWNLOADING);
         notify.run();
 
         try {
             RetryWrap.wrap(stop, new RetryWrap.Wrap() {
                 @Override
                 public void download() throws IOException {
-                    info.setState(URLInfo.States.DOWNLOADING);
+                    downloadInfo.setState(URLInfo.States.DOWNLOADING);
                     notify.run();
 
-                    downloadPart(info, stop, notify);
+                    downloadPart(downloadInfo, stop, notify);
                 }
 
                 @Override
                 public void retry(int delay, Throwable e) {
-                    info.setDelay(delay, e);
+                    downloadInfo.setDelay(delay, e);
                     notify.run();
                 }
 
                 @Override
                 public void moved(URL url) {
-                    info.setState(URLInfo.States.RETRYING);
+                    downloadInfo.setState(URLInfo.States.RETRYING);
                     notify.run();
                 }
             });
 
-            info.setState(URLInfo.States.DONE);
+            downloadInfo.setState(URLInfo.States.DONE);
             notify.run();
         } catch (DownloadInterruptedError e) {
-            info.setState(URLInfo.States.STOP);
+            downloadInfo.setState(URLInfo.States.STOP);
             notify.run();
 
             throw e;
         } catch (RuntimeException e) {
-            info.setState(URLInfo.States.ERROR);
+            downloadInfo.setState(URLInfo.States.ERROR);
             notify.run();
 
             throw e;

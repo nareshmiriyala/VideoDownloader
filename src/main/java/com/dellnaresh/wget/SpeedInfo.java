@@ -8,14 +8,14 @@ public class SpeedInfo {
     public static final int SAMPLE_MAX = 20;
     protected ArrayList<Sample> samples = new ArrayList<SpeedInfo.Sample>();
     protected long peak;
-    // start sample use to calculate average speed
+    // start sample use to calculateMultipartDownloadProgress average speed
     protected Sample start = null;
 
     public SpeedInfo() {
     }
 
     /**
-     * Start calculate speed from 'current' bytes downloaded
+     * Start calculateMultipartDownloadProgress speed from 'current' bytes downloaded
      *
      * @param current
      */
@@ -27,7 +27,7 @@ public class SpeedInfo {
     }
 
     /**
-     * step download process with 'current' bytes downloaded
+     * step downloadVideo process with 'current' bytes downloaded
      *
      * @param current
      */
@@ -41,7 +41,7 @@ public class SpeedInfo {
     }
 
     /**
-     * Current download speed
+     * Current downloadVideo speed
      *
      * @return bytes per second
      */
@@ -63,7 +63,7 @@ public class SpeedInfo {
     }
 
     /**
-     * Average speed from start download
+     * Average speed from start downloadVideo
      *
      * @return bytes per second
      */
@@ -96,7 +96,7 @@ public class SpeedInfo {
 
         Sample s1 = samples.get(is1);
 
-        // if steps back below start download, then use start mark
+        // if steps back below start downloadVideo, then use start mark
         if (s1.now < start.now)
             s1 = start;
 
@@ -135,12 +135,12 @@ public class SpeedInfo {
     //
 
     protected void add(Sample s) {
-        // check if we have broken / restarted download. check if here some
+        // checkConnection if we have broken / restarted downloadVideo. checkConnection if here some
         // samples
         if (samples.size() > 0) {
             Sample s1 = samples.get(samples.size() - 1);
-            // check if last download 'current' stands before current 'current'
-            // download
+            // checkConnection if last downloadVideo 'current' stands before current 'current'
+            // downloadVideo
             if (s1.current > s.current) {
                 s.start = true;
                 start = s;
@@ -156,7 +156,7 @@ public class SpeedInfo {
     }
 
     /**
-     * return number of samples in the row (before download restart)
+     * return number of samples in the row (before downloadVideo restart)
      *
      * @return
      */
@@ -191,7 +191,7 @@ public class SpeedInfo {
         public long current;
         // current time
         public long now;
-        // start block? used to mark block after download has been altered /
+        // start block? used to mark block after downloadVideo has been altered /
         // restarted
         public boolean start;
 

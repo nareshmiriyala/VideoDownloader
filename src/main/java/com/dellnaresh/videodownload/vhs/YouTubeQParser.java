@@ -22,9 +22,9 @@ public class YouTubeQParser extends YouTubeParser {
         this.q = q;
     }
 
-    public DownloadInfo extract(final VideoInfo vinfo, final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Starting extraction of video {}",vinfo.getTitle());
-        List<VideoDownload> sNextVideoURL = extractLinks(vinfo, stop, notify);
+    public DownloadInfo extractDownloadInfo(final VideoInfo videoInfo, final AtomicBoolean stop, final Runnable notify) {
+        logger.info("Starting extraction of video {}", videoInfo.getTitle());
+        List<VideoDownload> sNextVideoURL = extractLinks(videoInfo, stop, notify);
 
         if (sNextVideoURL.size() == 0) {
             // rare error:
@@ -33,7 +33,7 @@ public class YouTubeQParser extends YouTubeParser {
             // and will be available soon. Sorry, please try again later.
             //
             // retry. since youtube may already rendrered propertly quality.
-            throw new DownloadRetry("empty video download list," + " wait until youtube will process the video");
+            throw new DownloadRetry("empty video downloadVideo list," + " wait until youtube will process the video");
         }
 
         Collections.sort(sNextVideoURL, new VideoContentFirst());
@@ -41,17 +41,17 @@ public class YouTubeQParser extends YouTubeParser {
         for (VideoDownload v : sNextVideoURL) {
             boolean found;
 
-            found = q.equals(v.vq);
+            found = q.equals(v.videoQuality);
 
             if (found) {
-                vinfo.setVideoQuality(v.vq);
+                videoInfo.setVideoQuality(v.videoQuality);
                 DownloadInfo info = new DownloadInfo(v.url);
-                vinfo.setInfo(info);
+                videoInfo.setDownloadInfo(info);
                 return info;
             }
         }
 
-        // throw download stop if user choice not maximum quality and we have no
+        // throw downloadVideo stop if user choice not maximum quality and we have no
         // video rendered by youtube
 
         throw new DownloadError("no video user quality found");

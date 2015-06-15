@@ -3,6 +3,8 @@ package com.dellnaresh.wget.info;
 import com.dellnaresh.wget.Direct;
 import com.dellnaresh.wget.RetryWrap;
 import com.dellnaresh.wget.info.ex.DownloadRetry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -15,6 +17,7 @@ import java.util.regex.Pattern;
  * URLInfo - keep all information about source in one place. Thread safe.
  */
 public class URLInfo extends BrowserInfo {
+    private Logger logger= LoggerFactory.getLogger(URLInfo.class);
     /**
      * source url
      */
@@ -46,7 +49,7 @@ public class URLInfo extends BrowserInfo {
      */
     private String contentFilename;
     /**
-     * download state
+     * downloadVideo state
      */
     private States state;
     /**
@@ -70,6 +73,7 @@ public class URLInfo extends BrowserInfo {
     }
 
     public void extract(final AtomicBoolean stop, final Runnable notify) {
+        logger.info("Called extract");
         try {
             HttpURLConnection conn;
 
@@ -98,7 +102,7 @@ public class URLInfo extends BrowserInfo {
 
                 @Override
                 public void moved(URL u) {
-                    setReferer(url);
+                    setReferrer(url);
 
                     url = u;
 
@@ -141,31 +145,35 @@ public class URLInfo extends BrowserInfo {
         extract = b;
     }
 
-    // if range failed - do plain download with no retrys's
+    // if range failed - do plain downloadVideo with no retrys's
     protected HttpURLConnection extractRange(URL source) throws IOException {
+        logger.info("Checking if its extra range download");
         HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
         conn.setConnectTimeout(Direct.CONNECT_TIMEOUT);
         conn.setReadTimeout(Direct.READ_TIMEOUT);
 
         conn.setRequestProperty("User-Agent", getUserAgent());
-        if (getReferer() != null)
-            conn.setRequestProperty("Referer", getReferer().toExternalForm());
+        if (getReferrer() != null)
+            conn.setRequestProperty("Referer", getReferrer().toExternalForm());
 
         // may raise an exception if not supported by server
         conn.setRequestProperty("Range", "bytes=" + 0 + "-" + 0);
 
-        RetryWrap.check(conn);
+        RetryWrap.checkConnection(conn);
 
         String range = conn.getHeaderField("Content-Range");
-        if (range == null)
+        if (range == null) {
+            logger.info("Extra Range not supported");
             throw new RuntimeException("range not supported");
+        }
 
         Pattern p = Pattern.compile("bytes \\d+-\\d+/(\\d+)");
         Matcher m = p.matcher(range);
         if (m.find()) {
             setLength(new Long(m.group(1)));
         } else {
+            logger.info("Extra Range not supported");
             throw new RuntimeException("range not supported");
         }
 
@@ -174,20 +182,21 @@ public class URLInfo extends BrowserInfo {
         return conn;
     }
 
-    // if range failed - do plain download with no retrys's
+    // if range failed - do plain downloadVideo with no retrys's
     protected HttpURLConnection extractNormal(URL source) throws IOException {
+        logger.info("Checking if its normal download");
         HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
         conn.setConnectTimeout(Direct.CONNECT_TIMEOUT);
         conn.setReadTimeout(Direct.READ_TIMEOUT);
 
         conn.setRequestProperty("User-Agent", getUserAgent());
-        if (getReferer() != null)
-            conn.setRequestProperty("Referer", getReferer().toExternalForm());
+        if (getReferrer() != null)
+            conn.setRequestProperty("Referer", getReferrer().toExternalForm());
 
         setRange(false);
 
-        RetryWrap.check(conn);
+        RetryWrap.checkConnection(conn);
 
         int len = conn.getContentLength();
         if (len >= 0) {

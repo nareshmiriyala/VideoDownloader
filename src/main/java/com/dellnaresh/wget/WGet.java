@@ -1,9 +1,12 @@
 package com.dellnaresh.wget;
 
+import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.DownloadInfo;
 import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -14,13 +17,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WGet {
-
-    Direct d;
-    File targetFile;
+    private static Logger logger= LoggerFactory.getLogger(WGet.class);
+    private Direct direct;
+    private File targetFile;
     private DownloadInfo info;
 
     /**
-     * download with events control.
+     * downloadVideo with events control.
      *
      * @param source
      * @param target
@@ -30,29 +33,28 @@ public class WGet {
     }
 
     /**
-     * application controlled download / resume. you should specify targetfile
-     * name exactly. since you are choise resume / multipart download.
+     * application controlled downloadVideo / resumeDownload. you should specify targetfile
+     * name exactly. since you are choise resumeDownload / isMultiPart downloadVideo.
      * application unable to control file name choise / creation.
      *
-     * @param info
+     * @param downloadInfo
      * @param targetFile
-     * @param stop
-     * @param notify
      */
-    public WGet(DownloadInfo info, File targetFile) {
-        this.info = info;
+    public WGet(DownloadInfo downloadInfo, File targetFile) {
+        this.info = downloadInfo;
         this.targetFile = targetFile;
         create();
     }
 
     public static File calcName(URL source, File target) {
-        DownloadInfo info = new DownloadInfo(source);
-        info.extract();
+        DownloadInfo downloadInfo = new DownloadInfo(source);
+        downloadInfo.extract();
 
-        return calcName(info, target);
+        return calcName(downloadInfo, target);
     }
 
-    public static File calcName(DownloadInfo info, File target) {
+    public static File calcName(DownloadInfo downloadInfo, File target) {
+        logger.info("Calling calculate name");
         // target -
         // 1) can point to directory.
         // - generate exclusive (1) name.
@@ -61,10 +63,10 @@ public class WGet {
 
         String name = null;
 
-        name = info.getContentFilename();
+        name = downloadInfo.getContentFilename();
 
         if (name == null)
-            name = new File(info.getSource().getPath()).getName();
+            name = new File(downloadInfo.getSource().getPath()).getName();
 
         try {
             name = URLDecoder.decode(name, "UTF-8");
@@ -98,6 +100,7 @@ public class WGet {
     }
 
     public static String getHtml(URL source) {
+        logger.info("Calling getHtml");
         return getHtml(source, new HtmlLoader() {
             @Override
             public void notifyRetry(int delay, Throwable e) {
@@ -136,11 +139,11 @@ public class WGet {
                 conn.setConnectTimeout(Direct.CONNECT_TIMEOUT);
                 conn.setReadTimeout(Direct.READ_TIMEOUT);
 
-                conn.setRequestProperty("User-Agent", info.getUserAgent());
-                if (info.getReferer() != null)
-                    conn.setRequestProperty("Referer", info.getReferer().toExternalForm());
+                conn.setRequestProperty(Constants.USER_AGENT, info.getUserAgent());
+                if (info.getReferrer() != null)
+                    conn.setRequestProperty(Constants.REFERRER, info.getReferrer().toExternalForm());
 
-                RetryWrap.check(conn);
+                RetryWrap.checkConnection(conn);
 
                 InputStream is = conn.getInputStream();
 
@@ -167,7 +170,7 @@ public class WGet {
                     contents.append("\n");
 
                     if (stop.get())
-                        throw new DownloadInterruptedError("stop");
+                        throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
                 }
 
                 return contents.toString();
@@ -177,7 +180,7 @@ public class WGet {
             public void moved(URL url) {
                 DownloadInfo old = info;
                 info = new DownloadInfo(url);
-                info.setReferer(old.getReferer());
+                info.setReferrer(old.getReferrer());
 
                 load.notifyMoved();
             }
@@ -197,11 +200,11 @@ public class WGet {
     }
 
     void create() {
-        d = createDirect();
+        direct = createDirect();
     }
 
     Direct createDirect() {
-        if (info.multipart()) {
+        if (info.isMultiPart()) {
             return new DirectMultipart(info, targetFile);
         } else if (info.getRange()) {
             return new DirectRange(info, targetFile);
@@ -219,7 +222,7 @@ public class WGet {
     }
 
     public void download(AtomicBoolean stop, Runnable notify) {
-        d.download(stop, notify);
+        direct.download(stop, notify);
     }
 
     public DownloadInfo getInfo() {

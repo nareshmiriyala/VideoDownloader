@@ -1,11 +1,14 @@
 package com.dellnaresh.wget;
 
 import com.dellnaresh.threads.LimitThreadPool;
+import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.DownloadInfo;
 import com.dellnaresh.wget.info.URLInfo;
 import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
 import com.dellnaresh.wget.info.ex.DownloadMultipartError;
 import com.dellnaresh.wget.info.ex.DownloadRetry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -18,43 +21,43 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectMultipart extends Direct {
 
+    private Logger logger= LoggerFactory.getLogger(DirectMultipart.class);
+
     static public final int THREAD_COUNT = 3;
     static public final int RETRY_DELAY = 10;
 
-    LimitThreadPool worker = new LimitThreadPool(THREAD_COUNT);
+    LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
 
     boolean fatal = false;
 
     Object lock = new Object();
 
     /**
-     * @param info   download file information
+     * @param info   downloadVideo file information
      * @param target target file
-     * @param stop   multithreaded stop command
-     * @param notify progress notify call
      */
     public DirectMultipart(DownloadInfo info, File target) {
         super(info, target);
     }
 
     /**
-     * check existing file for download resume. for multipart download it may
-     * check all parts CRC
+     * checkConnection existing file for downloadVideo resumeDownload. for isMultiPart downloadVideo it may
+     * checkConnection all parts CRC
      *
-     * @param info
+     * @param inputDownloadInfo
      * @param targetFile
-     * @return return true - if all ok, false - if download can not be restored.
+     * @return return true - if all ok, false - if downloadVideo can not be restored.
      */
-    public static boolean canResume(DownloadInfo info, File targetFile) {
+    public static boolean canResume(DownloadInfo inputDownloadInfo, File targetFile) {
         if (!targetFile.exists())
             return false;
 
-        return targetFile.length() >= info.getCount();
+        return targetFile.length() >= inputDownloadInfo.getCount();
 
     }
 
     /**
-     * download part.
+     * downloadVideo part.
      * <p>
      * if returns normally - part is fully donwloaded. other wise - it throws
      * RuntimeException or DownloadRetry or DownloadError
@@ -62,11 +65,12 @@ public class DirectMultipart extends Direct {
      * @param part
      */
     void downloadPart(DownloadInfo.Part part, AtomicBoolean stop, Runnable notify) throws IOException {
+        logger.info("Downloading video part {}",part.getNumber());
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
 
         try {
-            URL url = info.getSource();
+            URL url = downloadInfo.getSource();
 
             long start = part.getStart() + part.getCount();
             long end = part.getEnd();
@@ -81,9 +85,9 @@ public class DirectMultipart extends Direct {
             conn.setConnectTimeout(CONNECT_TIMEOUT);
             conn.setReadTimeout(READ_TIMEOUT);
 
-            conn.setRequestProperty("User-Agent", info.getUserAgent());
-            if (info.getReferer() != null)
-                conn.setRequestProperty("Referer", info.getReferer().toExternalForm());
+            conn.setRequestProperty(Constants.USER_AGENT, downloadInfo.getUserAgent());
+            if (downloadInfo.getReferrer() != null)
+                conn.setRequestProperty(Constants.REFERRER, downloadInfo.getReferrer().toExternalForm());
 
             File f = target;
 
@@ -95,15 +99,15 @@ public class DirectMultipart extends Direct {
             byte[] bytes = new byte[BUF_SIZE];
             int read = 0;
 
-            RetryWrap.check(conn);
+            RetryWrap.checkConnection(conn);
 
             binaryreader = new BufferedInputStream(conn.getInputStream());
 
             boolean localStop = false;
 
             while ((read = binaryreader.read(bytes)) > 0) {
-                // ensure we do not download more then part size.
-                // if so cut bytes and stop download
+                // ensure we do not downloadVideo more then part size.
+                // if so cut bytes and stop downloadVideo
                 long partEnd = part.getLength() - part.getCount();
                 if (read > partEnd) {
                     read = (int) partEnd;
@@ -112,18 +116,22 @@ public class DirectMultipart extends Direct {
 
                 fos.write(bytes, 0, read);
                 part.setCount(part.getCount() + read);
-                info.calculate();
+                downloadInfo.calculateMultipartDownloadProgress();
                 notify.run();
 
-                if (stop.get())
-                    throw new DownloadInterruptedError("stop");
-                if (Thread.interrupted())
-                    throw new DownloadInterruptedError("interrupted");
+                if (stop.get()) {
+                    logger.error("DownloadInterruptedError called stop");
+                    throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
+                }
+                if (Thread.interrupted()) {
+                    logger.error("DownloadInterruptedError thread interrupted");
+                    throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
+                }
                 if (fatal())
-                    throw new DownloadInterruptedError("fatal");
+                    throw new DownloadInterruptedError(Constants.ERRORS.FATAL);
 
                 // do not throw exception here. we normally done downloading.
-                // just took a littlbe bit more
+                // just took a little bit more
                 if (localStop)
                     return;
             }
@@ -158,14 +166,15 @@ public class DirectMultipart extends Direct {
             return str;
     }
 
-    void downloadWorker(final DownloadInfo.Part p, final AtomicBoolean stop, final Runnable notify) throws InterruptedException {
-        worker.blockExecute(new Runnable() {
+    void downloadWorker(final DownloadInfo.Part part, final AtomicBoolean stop, final Runnable notify) throws InterruptedException {
+        logger.info("Called Download Worker");
+        limitThreadPool.blockExecute(new Runnable() {
             @Override
             public void run() {
                 {
                     String f = "%s - Part: %d";
-                    Thread t = Thread.currentThread();
-                    t.setName(String.format(f, trimLen(info.getSource().toString(), 64), p.getNumber()));
+                    Thread thread = Thread.currentThread();
+                    thread.setName(String.format(f, trimLen(downloadInfo.getSource().toString(), 64), part.getNumber()));
                 }
 
                 try {
@@ -173,34 +182,34 @@ public class DirectMultipart extends Direct {
 
                         @Override
                         public void download() throws IOException {
-                            p.setState(DownloadInfo.Part.States.DOWNLOADING);
+                            part.setState(DownloadInfo.Part.States.DOWNLOADING);
                             notify.run();
 
-                            downloadPart(p, stop, notify);
+                            downloadPart(part, stop, notify);
                         }
 
                         @Override
                         public void retry(int delay, Throwable e) {
-                            p.setDelay(delay, e);
+                            part.setDelay(delay, e);
                             notify.run();
                         }
 
                         @Override
                         public void moved(URL url) {
-                            p.setState(DownloadInfo.Part.States.RETRYING);
+                            part.setState(DownloadInfo.Part.States.RETRYING);
                             notify.run();
                         }
 
                     });
-                    p.setState(DownloadInfo.Part.States.DONE);
+                    part.setState(DownloadInfo.Part.States.DONE);
                     notify.run();
                 } catch (DownloadInterruptedError e) {
-                    p.setState(DownloadInfo.Part.States.STOP, e);
+                    part.setState(DownloadInfo.Part.States.STOP, e);
                     notify.run();
 
                     fatal(true);
                 } catch (RuntimeException e) {
-                    p.setState(DownloadInfo.Part.States.ERROR, e);
+                    part.setState(DownloadInfo.Part.States.ERROR, e);
                     notify.run();
 
                     fatal(true);
@@ -208,17 +217,17 @@ public class DirectMultipart extends Direct {
             }
         });
 
-        p.setState(DownloadInfo.Part.States.DOWNLOADING);
+        part.setState(DownloadInfo.Part.States.DOWNLOADING);
     }
 
     /**
-     * return next part to download. ensure this part is not done() and not
+     * return next part to downloadVideo. ensure this part is not done() and not
      * currently downloading
      *
      * @return
      */
     DownloadInfo.Part getPart() {
-        for (DownloadInfo.Part p : info.getParts()) {
+        for (DownloadInfo.Part p : downloadInfo.getParts()) {
             if (!p.getState().equals(DownloadInfo.Part.States.QUEUED))
                 continue;
             return p;
@@ -229,17 +238,17 @@ public class DirectMultipart extends Direct {
 
     /**
      * return true, when thread pool empty, and here is no unfinished parts to
-     * download
+     * downloadVideo
      *
      * @return true - done. false - not done yet
      * @throws InterruptedException
      */
     boolean done(AtomicBoolean stop) {
         if (stop.get())
-            throw new DownloadInterruptedError("stop");
+            throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
         if (Thread.interrupted())
-            throw new DownloadInterruptedError("interupted");
-        if (worker.active())
+            throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
+        if (limitThreadPool.active())
             return false;
         return getPart() == null;
 
@@ -247,12 +256,13 @@ public class DirectMultipart extends Direct {
 
     @Override
     public void download(AtomicBoolean stop, Runnable notify) {
-        for (DownloadInfo.Part p : info.getParts()) {
+        logger.info("Calling Download");
+        for (DownloadInfo.Part p : downloadInfo.getParts()) {
             if (p.getState().equals(DownloadInfo.Part.States.DONE))
                 continue;
             p.setState(DownloadInfo.Part.States.QUEUED);
         }
-        info.setState(URLInfo.States.DOWNLOADING);
+        downloadInfo.setState(URLInfo.States.DOWNLOADING);
         notify.run();
 
         try {
@@ -263,22 +273,22 @@ public class DirectMultipart extends Direct {
                 } else {
                     // we have no parts left.
                     //
-                    // wait until task ends and check again if we have to retry.
-                    // we have to check if last part back to queue in case of
+                    // wait until task ends and checkConnection again if we have to retry.
+                    // we have to checkConnection if last part back to queue in case of
                     // RETRY state
-                    worker.waitUntilNextTaskEnds();
+                    limitThreadPool.waitUntilNextTaskEnds();
                 }
 
                 // if we start to receive errors. stop add new tasks and wait
                 // until all active tasks be emptied
                 if (fatal()) {
-                    worker.waitUntilTermination();
+                    limitThreadPool.waitUntilTermination();
 
-                    // check if all parts finished with interrupted, throw one
+                    // checkConnection if all parts finished with interrupted, throw one
                     // interrupted
                     {
                         boolean interrupted = true;
-                        for (DownloadInfo.Part pp : info.getParts()) {
+                        for (DownloadInfo.Part pp : downloadInfo.getParts()) {
                             Throwable e = pp.getException();
                             if (e == null)
                                 continue;
@@ -286,35 +296,37 @@ public class DirectMultipart extends Direct {
                                 continue;
                             interrupted = false;
                         }
-                        if (interrupted)
-                            throw new DownloadInterruptedError("multipart all interrupted");
+                        if (interrupted) {
+                            logger.info("Multipart Download interrupted");
+                            throw new DownloadInterruptedError("isMultiPart all interrupted");
+                        }
                     }
 
                     // ok all thread stopped. now throw the exception and let
                     // app deal with the errors
-                    throw new DownloadMultipartError(info);
+                    throw new DownloadMultipartError(downloadInfo);
                 }
             }
 
-            info.setState(URLInfo.States.DONE);
+            downloadInfo.setState(URLInfo.States.DONE);
             notify.run();
         } catch (InterruptedException e) {
-            info.setState(URLInfo.States.STOP);
+            downloadInfo.setState(URLInfo.States.STOP);
             notify.run();
 
             throw new DownloadInterruptedError(e);
         } catch (DownloadInterruptedError e) {
-            info.setState(URLInfo.States.STOP);
+            downloadInfo.setState(URLInfo.States.STOP);
             notify.run();
 
             throw e;
         } catch (RuntimeException e) {
-            info.setState(URLInfo.States.ERROR);
+            downloadInfo.setState(URLInfo.States.ERROR);
             notify.run();
 
             throw e;
         } finally {
-            worker.shutdown();
+            limitThreadPool.shutdown();
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.dellnaresh.wget.info;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,14 +15,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @XStreamAlias("DownloadInfo")
 public class DownloadInfo extends URLInfo {
-
+     private Logger logger= LoggerFactory.getLogger(DownloadInfo.class);
     public final static long PART_LENGTH = 10 * 1024 * 1024;
     /**
-     * part we are going to download.
+     * part we are going to downloadVideo.
      */
     private List<Part> parts;
     /**
-     * total bytes downloaded. for chunk download progress info. for one thread
+     * total bytes downloaded. for chunk downloadVideo progress info. for one thread
      * count - also local file size;
      */
     private long count;
@@ -30,11 +32,12 @@ public class DownloadInfo extends URLInfo {
     }
 
     /**
-     * is it a multipart download?
+     * is it a isMultiPart downloadVideo?
      *
      * @return
      */
-    synchronized public boolean multipart() {
+    synchronized public boolean isMultiPart() {
+        logger.info("Check is multi part video");
         if (!getRange())
             return false;
 
@@ -53,10 +56,11 @@ public class DownloadInfo extends URLInfo {
     }
 
     /**
-     * for multi part download, call every time when we need to know totol
-     * download progress
+     * for multi part downloadVideo, call every time when we need to know to
+     * downloadVideo progress
      */
-    synchronized public void calculate() {
+    synchronized public void calculateMultipartDownloadProgress() {
+        logger.info("Calculating multi part video download progress");
         setCount(0);
 
         for (Part p : getParts())
@@ -68,11 +72,12 @@ public class DownloadInfo extends URLInfo {
     }
 
     synchronized public void enableMultipart() {
+        logger.info("Enable multi part download");
         if (empty())
-            throw new RuntimeException("Empty Download info, cant set multipart");
+            throw new RuntimeException("Empty Download info, cant set isMultiPart");
 
         if (!getRange())
-            throw new RuntimeException("Server does not support RANGE, cant set multipart");
+            throw new RuntimeException("Server does not support RANGE, cant set isMultiPart");
 
         long count = getLength() / PART_LENGTH + 1;
 
@@ -96,13 +101,14 @@ public class DownloadInfo extends URLInfo {
     }
 
     /**
-     * Check if we can continue download a file from new source. Check if new
+     * Check if we can continue downloadVideo a file from new source. Check if new
      * souce has the same file length, title. and supports for range
      *
      * @param newSource new source
-     * @return true - possible to resume from new location
+     * @return true - possible to resumeDownload from new location
      */
-    synchronized public boolean resume(DownloadInfo newSource) {
+    synchronized public boolean resumeDownload(DownloadInfo newSource) {
+        logger.info("Resuming the download");
         if (!newSource.getRange())
             return false;
 
@@ -137,7 +143,7 @@ public class DownloadInfo extends URLInfo {
     }
 
     /**
-     * copy resume data from oldSource;
+     * copy resumeDownload data from oldSource;
      */
     synchronized public void copy(DownloadInfo oldSource) {
         setCount(oldSource.getCount());
@@ -176,7 +182,7 @@ public class DownloadInfo extends URLInfo {
          */
         private long count;
         /**
-         * download state
+         * downloadVideo state
          */
         private States state;
         /**

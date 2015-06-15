@@ -3,17 +3,21 @@ package com.dellnaresh.videodownload.info;
 import com.dellnaresh.videodownload.vhs.VimeoParser;
 import com.dellnaresh.videodownload.vhs.YouTubeParser;
 import com.dellnaresh.wget.info.DownloadInfo;
+import com.dellnaresh.wget.info.ex.DownloadError;
 import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoInfo {
 
+    private Logger logger= LoggerFactory.getLogger(VideoInfo.class);
     // user friendly url (not direct video stream url)
-    private URL web;
-    private VideoQuality vq;
-    private DownloadInfo info;
+    private URL webUrl;
+    private VideoQuality videoQuality;
+    private DownloadInfo downloadInfo;
     private String title;
     private URL icon;
     // states, three variables
@@ -21,24 +25,21 @@ public class VideoInfo {
     private Throwable exception;
     private int delay;
     /**
-     * @param vq    max video quality to download
-     * @param web   user firendly url
-     * @param video video stream url
-     * @param title video title
+     * @param webUrl   user firendly url
      */
-    public VideoInfo(URL web) {
-        this.setWeb(web);
+    public VideoInfo(URL webUrl) {
+        this.setWebUrl(webUrl);
 
         reset();
     }
 
     /**
-     * check if we have call extract()
+     * checkConnection if we have call extractDownloadInfo()
      *
-     * @return true - if extract() already been called
+     * @return true - if extractDownloadInfo() already been called
      */
     public boolean empty() {
-        return info == null;
+        return downloadInfo == null;
     }
 
     /**
@@ -47,8 +48,8 @@ public class VideoInfo {
     public void reset() {
         setState(States.QUEUE);
 
-        info = null;
-        vq = null;
+        downloadInfo = null;
+        videoQuality = null;
         title = null;
         icon = null;
         exception = null;
@@ -63,63 +64,70 @@ public class VideoInfo {
         this.title = title;
     }
 
-    public DownloadInfo getInfo() {
-        return info;
+    public DownloadInfo getDownloadInfo() {
+        return downloadInfo;
     }
 
-    public void setInfo(DownloadInfo info) {
-        this.info = info;
+    public void setDownloadInfo(DownloadInfo downloadInfo) {
+        this.downloadInfo = downloadInfo;
     }
 
     /**
-     * get current video quality. holds actual videoquality ready for download
+     * get current video quality. holds actual videoquality ready for downloadVideo
      *
      * @return videoquality of requested URL
      */
     public VideoQuality getVideoQuality() {
-        return vq;
+        return videoQuality;
     }
 
     /**
      * @param vq video quality
      */
     public void setVideoQuality(VideoQuality vq) {
-        this.vq = vq;
+        this.videoQuality = vq;
     }
 
-    public URL getWeb() {
-        return web;
+    public URL getWebUrl() {
+        return webUrl;
     }
 
-    public void setWeb(URL source) {
-        this.web = source;
+    public void setWebUrl(URL source) {
+        this.webUrl = source;
     }
 
-    public void extract(VideoParser user, AtomicBoolean stop, Runnable notify) {
-        VideoParser ei = user;
+    public void extractDownloadInfo(VideoParser ei, AtomicBoolean stop, Runnable notify) {
 
-        if (ei == null && YouTubeParser.probe(web))
-            ei = new YouTubeParser(web);
+        if (ei == null && YouTubeParser.probe(webUrl)) {
+            logger.info("Initialized YouTubeParser");
+            ei = new YouTubeParser(webUrl);
+        }
 
-        if (ei == null && VimeoParser.probe(web))
-            ei = new VimeoParser(web);
+        if (ei == null && VimeoParser.probe(webUrl))
+            ei = new VimeoParser(webUrl);
 
         if (ei == null)
-            throw new RuntimeException("unsupported web site");
+            throw new RuntimeException("unsupported webUrl site");
 
         try {
-            DownloadInfo dinfo = ei.extract(this, stop, notify);
+            DownloadInfo dinfo = ei.extractDownloadInfo(this, stop, notify);
+            if(dinfo==null){
+                logger.error("Not able to extractDownloadInfo downloadVideo info");
+                throw new DownloadError("DownloadInfo object is null");
+            }
 
-            this.setInfo(dinfo);
+            this.setDownloadInfo(dinfo);
 
-            info.setReferer(web);
+            downloadInfo.setReferrer(webUrl);
 
-            info.extract(stop, notify);
+            downloadInfo.extract(stop, notify);
         } catch (DownloadInterruptedError e) {
+            logger.error("Download Interrupted Error {}",e);
             setState(States.STOP, e);
 
             throw e;
         } catch (RuntimeException e) {
+            logger.error("Runtime Exception {}",e);
             setState(States.ERROR, e);
 
             throw e;

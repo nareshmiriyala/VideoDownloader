@@ -101,17 +101,17 @@ public class YouTubeParser extends VideoParser {
     }
 
     @Override
-    public List<VideoDownload> extractLinks(final VideoInfo info, final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Extracting links of video ",info.getTitle());
+    public List<VideoDownload> extractLinks(final VideoInfo videoInfo, final AtomicBoolean stop, final Runnable notify) {
+        logger.info("Extracting links of video ", videoInfo.getTitle());
         try {
             try {
 
-                return extractEmbedded(info, stop, notify);
+                return extractEmbedded(videoInfo, stop, notify);
             } catch (EmbeddingDisabled e) {
-                    logger.warn("Cant extract any link using Embedded method ,trying extractHTML");
-                List<VideoDownload> videoDownloads = extractHTML(info, stop, notify);
+                    logger.warn("Cant extractDownloadInfo any link using Embedded method ,trying extractHTML");
+                List<VideoDownload> videoDownloads = extractHTML(videoInfo, stop, notify);
                 if(videoDownloads.size()==0){
-                    videoDownloads=streamCpature(info, stop, notify);
+                    videoDownloads=streamCpature(videoInfo, stop, notify);
                 }
                 return videoDownloads;
             }
@@ -123,7 +123,7 @@ public class YouTubeParser extends VideoParser {
     }
 
     /**
-     * do not allow to download age restricted videos
+     * do not allow to downloadVideo age restricted videos
      *
      * @param info
      * @param stop
@@ -136,7 +136,7 @@ public class YouTubeParser extends VideoParser {
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String html;
-        html = WGet.getHtml(info.getWeb(), new WGet.HtmlLoader() {
+        html = WGet.getHtml(info.getWebUrl(), new WGet.HtmlLoader() {
             @Override
             public void notifyRetry(int delay, Throwable e) {
                 info.setDelay(delay, e);
@@ -164,7 +164,7 @@ public class YouTubeParser extends VideoParser {
     /**
      * Add resolution video for specific youtube link.
      *
-     * @param url download source url
+     * @param url downloadVideo source url
      * @throws MalformedURLException
      */
     void addVideo(List<VideoDownload> sNextVideoURL, String itag, URL url) {
@@ -216,14 +216,14 @@ public class YouTubeParser extends VideoParser {
                     found = true;
                 }
             }catch (Exception e){
-                throw new DownloadError("Error during download");
+                throw new DownloadError("Error during downloadVideo");
             }
         }
         return foundMessage;
     }
 
     /**
-     * allows to download age restricted videos
+     * allows to downloadVideo age restricted videos
      *
      * @param info
      * @param stop

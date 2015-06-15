@@ -35,10 +35,10 @@ public class AppManagedDownloadTest {
                 @Override
                 public void run() {
                     VideoInfo i1 = info;
-                    DownloadInfo i2 = i1.getInfo();
+                    DownloadInfo i2 = i1.getDownloadInfo();
 
-                    // notify app or save download state
-                    // you can extract information from DownloadInfo info;
+                    // notify app or save downloadVideo state
+                    // you can extractDownloadInfo information from DownloadInfo info;
                     switch (i1.getState()) {
                         case EXTRACTING:
                         case EXTRACTING_DONE:
@@ -46,7 +46,7 @@ public class AppManagedDownloadTest {
                             logger.info("Download state {},Downloaded video quality {}",i1.getState(),i1.getVideoQuality());
                             break;
                         case RETRYING:
-                            logger.info("Retrying download with delay {} having state {}",i1.getDelay(),i1.getState());
+                            logger.info("Retrying downloadVideo with delay {} having state {}",i1.getDelay(),i1.getState());
                             break;
                         case DOWNLOADING:
                             long now = System.currentTimeMillis();
@@ -57,7 +57,7 @@ public class AppManagedDownloadTest {
 
                                 List<Part> pp = i2.getParts();
                                 if (pp != null) {
-                                    // multipart download
+                                    // isMultiPart downloadVideo
                                     for (Part p : pp) {
                                         if (p.getState().equals(States.DOWNLOADING)) {
                                             parts += String.format("Part#%d(%.2f) ", p.getNumber(), p.getCount()
@@ -85,23 +85,23 @@ public class AppManagedDownloadTest {
             VideoParser user;
 
             // create simple youtube request
-            //user = new YouTubeParser(info.getWeb());
-            // download maximum video quality
-            user = new YouTubeQParser(info.getWeb(), VideoInfo.VideoQuality.p360);
-            // download non webm only
-            //user = new YouTubeMPGParser(info.getWeb(), VideoQuality.p480);
+            //user = new YouTubeParser(info.getWebUrl());
+            // downloadVideo maximum video quality
+            user = new YouTubeQParser(info.getWebUrl(), VideoInfo.VideoQuality.p360);
+            // downloadVideo non webm only
+            //user = new YouTubeMPGParser(info.getWebUrl(), VideoQuality.p480);
 
             VideoDownload v = new VideoDownload(info, path);
 
-            // [OPTIONAL] call v.extract() only if you d like to get video title
-            // or download url link
-            // before start download. or just skip it.
-            v.extract(user, stop, notify);
+            // [OPTIONAL] call v.extractDownloadInfo() only if you d like to get video title
+            // or downloadVideo url link
+            // before start downloadVideo. or just skip it.
+            v.extractVideo(user, stop, notify);
 
             logger.info("Title: {} " , info.getTitle());
-            logger.info("Download URL: {} " , info.getInfo().getSource());
+            logger.info("Download URL: {} " , info.getDownloadInfo().getSource());
 
-            v.download(user, stop, notify);
+            v.downloadVideo(user, stop, notify);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

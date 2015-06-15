@@ -20,7 +20,7 @@ public class GetHtml {
 
     public static void main(String[] args) {
         try {
-            System.out.println("Enter download url:");
+            System.out.println("Enter downloadVideo url:");
             // ex: http://www.youtube.com/watch?v=Nj6PFaDmp6c
             BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
             String urlStr = bufferRead.readLine();

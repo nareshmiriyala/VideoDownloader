@@ -10,7 +10,7 @@ public class BrowserInfo {
     static public final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11";
 
     private String userAgent = USER_AGENT;
-    private URL referer;
+    private URL referrer;
 
     synchronized public String getUserAgent() {
         return userAgent;
@@ -20,11 +20,11 @@ public class BrowserInfo {
         this.userAgent = userAgent;
     }
 
-    synchronized public URL getReferer() {
-        return referer;
+    synchronized public URL getReferrer() {
+        return referrer;
     }
 
-    synchronized public void setReferer(URL referer) {
-        this.referer = referer;
+    synchronized public void setReferrer(URL referrer) {
+        this.referrer = referrer;
     }
 }

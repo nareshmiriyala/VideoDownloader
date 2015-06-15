@@ -108,7 +108,7 @@ public class LimitThreadPool extends ThreadPoolExecutor {
                 executor.getQueue().put(r);
             } catch (InterruptedException e) {
                 // since we cound not rethrow interrupted exception. mark thread
-                // as interrupted. and check thread status later in
+                // as interrupted. and checkConnection thread status later in
                 // blockExecute()
                 Thread.currentThread().interrupt();
             }

@@ -24,7 +24,7 @@ public class DirectDownloadTest {
     public void testDirectDownload() throws Exception {
         try {
             VideoDownload v = new VideoDownload(new URL(url), new File(path));
-            v.download();
+            v.downloadVideo();
         } catch (Exception e) {
             e.printStackTrace();
         }

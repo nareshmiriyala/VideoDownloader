@@ -30,7 +30,7 @@ public class ExtractDownloadLinksTest {
 
             VideoInfo info = new VideoInfo(new URL(url));
 
-            YouTubeParser parser = new YouTubeParser(info.getWeb());
+            YouTubeParser parser = new YouTubeParser(info.getWebUrl());
 
             List<VideoParser.VideoDownload> list = parser.extractLinks(info, new AtomicBoolean(), new Runnable() {
 
@@ -40,7 +40,7 @@ public class ExtractDownloadLinksTest {
             });
 
             for (VideoParser.VideoDownload d : list) {
-                System.out.println(d.vq + " " + d.url);
+                System.out.println(d.videoQuality + " " + d.url);
             }
         } catch (Exception e) {
             e.printStackTrace();
