@@ -81,7 +81,7 @@ public class DirectSingle extends Direct {
             fos = new RandomAccessFile(f, "rw");
 
             byte[] bytes = new byte[BUF_SIZE];
-            int read = 0;
+            int read;
 
             RetryWrap.checkConnection(conn);
 

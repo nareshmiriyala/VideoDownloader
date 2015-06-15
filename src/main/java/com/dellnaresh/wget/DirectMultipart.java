@@ -97,7 +97,7 @@ public class DirectMultipart extends Direct {
             fos.seek(start);
 
             byte[] bytes = new byte[BUF_SIZE];
-            int read = 0;
+            int read;
 
             RetryWrap.checkConnection(conn);
 

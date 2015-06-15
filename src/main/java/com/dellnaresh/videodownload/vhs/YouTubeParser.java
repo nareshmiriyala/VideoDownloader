@@ -186,7 +186,7 @@ public class YouTubeParser extends VideoParser {
         }
         String url = String.format(VIDEO_URL, id);
         Document doc = Jsoup.connect(url).get();
-        String foundMessage = null;
+        String foundMessage;
         String SEARCH_PATTERN = "\"url_encoded_fmt_stream_map\":(.+?),";
         String title = doc.select("title").first().html();
         info.setTitle(title);

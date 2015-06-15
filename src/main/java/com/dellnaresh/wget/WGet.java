@@ -61,7 +61,7 @@ public class WGet {
         // 2) to exisiting file
         // 3) to non existing file
 
-        String name = null;
+        String name;
 
         name = downloadInfo.getContentFilename();
 
@@ -77,7 +77,7 @@ public class WGet {
         String nameNoExt = FilenameUtils.removeExtension(name);
         String ext = FilenameUtils.getExtension(name);
 
-        File targetFile = null;
+        File targetFile;
 
         if (target.isDirectory()) {
             targetFile = FileUtils.getFile(target, name);
@@ -132,7 +132,7 @@ public class WGet {
 
             @Override
             public String download() throws IOException {
-                HttpURLConnection conn = null;
+                HttpURLConnection conn;
 
                 conn = (HttpURLConnection) info.getSource().openConnection();
 
@@ -162,7 +162,7 @@ public class WGet {
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, enc));
 
-                String line = null;
+                String line;
 
                 StringBuilder contents = new StringBuilder();
                 while ((line = br.readLine()) != null) {

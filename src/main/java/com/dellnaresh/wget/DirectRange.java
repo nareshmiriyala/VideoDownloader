@@ -77,7 +77,7 @@ public class DirectRange extends Direct {
             }
 
             byte[] bytes = new byte[BUF_SIZE];
-            int read = 0;
+            int read;
 
             RetryWrap.checkConnection(conn);
 
