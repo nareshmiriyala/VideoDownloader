@@ -6,7 +6,7 @@ import com.dellnaresh.videodownload.info.VideoParser;
 import java.net.URL;
 import java.util.List;
 
-public class YouTubeMPGParser extends YouTubeParser {
+class YouTubeMPGParser extends YouTubeParser {
 
     public YouTubeMPGParser(URL input, VideoInfo.VideoQuality q) {
         super(input);

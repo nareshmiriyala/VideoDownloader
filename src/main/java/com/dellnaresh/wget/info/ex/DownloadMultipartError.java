@@ -7,7 +7,7 @@ public class DownloadMultipartError extends DownloadError {
 
     private static final long serialVersionUID = 7835308901669107488L;
 
-    final DownloadInfo info;
+    private final DownloadInfo info;
 
     public DownloadMultipartError(DownloadInfo info) {
         super("Multipart error");

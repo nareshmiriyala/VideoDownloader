@@ -28,7 +28,7 @@ public class WGet {
      * @param source
      * @param target
      */
-    public WGet(URL source, File target) {
+    private WGet(URL source, File target) {
         create(source, target);
     }
 
@@ -40,7 +40,7 @@ public class WGet {
      * @param downloadInfo
      * @param targetFile
      */
-    public WGet(DownloadInfo downloadInfo, File targetFile) {
+    private WGet(DownloadInfo downloadInfo, File targetFile) {
         this.info = downloadInfo;
         this.targetFile = targetFile;
         create();
@@ -53,7 +53,7 @@ public class WGet {
         return calcName(downloadInfo, target);
     }
 
-    public static File calcName(DownloadInfo downloadInfo, File target) {
+    private static File calcName(DownloadInfo downloadInfo, File target) {
         logger.info("Calling calculate name");
         // target -
         // 1) can point to directory.
@@ -120,7 +120,7 @@ public class WGet {
         return getHtml(new DownloadInfo(source), load, stop);
     }
 
-    public static String getHtml(final DownloadInfo source, final HtmlLoader load, final AtomicBoolean stop) {
+    private static String getHtml(final DownloadInfo source, final HtmlLoader load, final AtomicBoolean stop) {
 
         return RetryWrap.wrap(stop, new RetryWrap.WrapReturn<String>() {
             DownloadInfo info = source;
@@ -188,22 +188,22 @@ public class WGet {
         });
     }
 
-    void create(URL source, File target) {
+    private void create(URL source, File target) {
         info = new DownloadInfo(source);
         info.extract();
         create(target);
     }
 
-    void create(File target) {
+    private void create(File target) {
         targetFile = calcName(info, target);
         create();
     }
 
-    void create() {
+    private void create() {
         direct = createDirect();
     }
 
-    Direct createDirect() {
+    private Direct createDirect() {
         if (info.isMultiPart()) {
             return new DirectMultipart(info, targetFile);
         } else if (info.getRange()) {
@@ -221,7 +221,7 @@ public class WGet {
         });
     }
 
-    public void download(AtomicBoolean stop, Runnable notify) {
+    private void download(AtomicBoolean stop, Runnable notify) {
         direct.download(stop, notify);
     }
 

@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class VideoParser {
 
-    public abstract List<VideoDownload> extractLinks(final VideoInfo videoInfo, final AtomicBoolean stop,
-                                                     final Runnable notify);
+    protected abstract List<VideoDownload> extractLinks(final VideoInfo videoInfo, final AtomicBoolean stop,
+                                                        final Runnable notify);
 
     public DownloadInfo extractDownloadInfo(final VideoInfo videoInfo, final AtomicBoolean stop, final Runnable notify) {
         List<VideoDownload> sNextVideoURL = extractLinks(videoInfo, stop, notify);
@@ -54,7 +54,7 @@ public abstract class VideoParser {
         }
     }
 
-    static public class VideoContentFirst implements Comparator<VideoDownload> {
+    public static class VideoContentFirst implements Comparator<VideoDownload> {
 
         @Override
         public int compare(VideoDownload o1, VideoDownload o2) {

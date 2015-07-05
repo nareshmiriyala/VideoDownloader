@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
  * SynchronousQueue$TransferStack$SNode, boolean, long) line: 458
  */
 public class LimitThreadPool extends ThreadPoolExecutor {
-    final Object lock = new Object();
-    int count = 0;
+    private final Object lock = new Object();
+    private int count = 0;
 
     public LimitThreadPool(int maxThreadCount) {
         super(0, maxThreadCount, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1), new BlockUntilFree());
@@ -95,7 +95,7 @@ public class LimitThreadPool extends ThreadPoolExecutor {
             throw new InterruptedException();
     }
 
-    protected static class BlockUntilFree implements RejectedExecutionHandler {
+    private static class BlockUntilFree implements RejectedExecutionHandler {
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
             // Access to the task queue is intended primarily for
@@ -115,7 +115,7 @@ public class LimitThreadPool extends ThreadPoolExecutor {
         }
     }
 
-    protected static class SafetyCheck implements Runnable {
+    static class SafetyCheck implements Runnable {
         final Runnable r;
 
         public SafetyCheck(Runnable r) {

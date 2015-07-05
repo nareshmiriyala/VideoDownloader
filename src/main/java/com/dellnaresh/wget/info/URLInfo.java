@@ -61,7 +61,7 @@ public class URLInfo extends BrowserInfo {
      */
     private int delay;
 
-    public URLInfo(URL source) {
+    URLInfo(URL source) {
         this.source = source;
     }
 
@@ -73,7 +73,7 @@ public class URLInfo extends BrowserInfo {
         });
     }
 
-    public void extract(final AtomicBoolean stop, final Runnable notify) {
+    void extract(final AtomicBoolean stop, final Runnable notify) {
         logger.info("Called extract");
         try {
             HttpURLConnection conn;
@@ -138,16 +138,16 @@ public class URLInfo extends BrowserInfo {
         }
     }
 
-    synchronized public boolean empty() {
+    synchronized boolean empty() {
         return !extract;
     }
 
-    synchronized public void setEmpty(boolean b) {
+    private synchronized void setEmpty(boolean b) {
         extract = b;
     }
 
     // if range failed - do plain downloadVideo with no retrys's
-    protected HttpURLConnection extractRange(URL source) throws IOException {
+    private HttpURLConnection extractRange(URL source) throws IOException {
         logger.info("Checking if its extra range download");
         HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
@@ -184,7 +184,7 @@ public class URLInfo extends BrowserInfo {
     }
 
     // if range failed - do plain downloadVideo with no retrys's
-    protected HttpURLConnection extractNormal(URL source) throws IOException {
+    private HttpURLConnection extractNormal(URL source) throws IOException {
         logger.info("Checking if its normal download");
         HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
@@ -211,7 +211,7 @@ public class URLInfo extends BrowserInfo {
         return contentType;
     }
 
-    synchronized public void setContentType(String ct) {
+    private synchronized void setContentType(String ct) {
         contentType = ct;
     }
 
@@ -219,7 +219,7 @@ public class URLInfo extends BrowserInfo {
         return length;
     }
 
-    synchronized public void setLength(Long l) {
+    private synchronized void setLength(Long l) {
         length = l;
     }
 
@@ -231,7 +231,7 @@ public class URLInfo extends BrowserInfo {
         return contentFilename;
     }
 
-    synchronized public void setContentFilename(String f) {
+    private synchronized void setContentFilename(String f) {
         contentFilename = f;
     }
 
@@ -245,7 +245,7 @@ public class URLInfo extends BrowserInfo {
         this.delay = 0;
     }
 
-    synchronized public void setState(States state, Throwable e) {
+    private synchronized void setState(States state, Throwable e) {
         this.state = state;
         this.exception = e;
         this.delay = 0;
@@ -273,7 +273,7 @@ public class URLInfo extends BrowserInfo {
         return range;
     }
 
-    synchronized public void setRange(boolean range) {
+    private synchronized void setRange(boolean range) {
         this.range = range;
     }
 

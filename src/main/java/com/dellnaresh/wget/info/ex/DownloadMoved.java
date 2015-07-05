@@ -7,7 +7,7 @@ import java.net.URLConnection;
 public class DownloadMoved extends DownloadRetry {
     private static final long serialVersionUID = 1L;
 
-    URLConnection c;
+    private URLConnection c;
 
     public DownloadMoved(URLConnection c) {
         this.c = c;

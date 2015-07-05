@@ -14,7 +14,7 @@ public class RetryWrap {
     public static final int RETRY_DELAY = 5;
     private static final Logger logger = LoggerFactory.getLogger(RetryWrap.class);
 
-    static <T> void moved(AtomicBoolean stop, WrapReturn<T> r, DownloadMoved e) {
+    private static <T> void moved(AtomicBoolean stop, WrapReturn<T> r, DownloadMoved e) {
         logger.info("Calling moved method");
         hadleExceptions(stop);
 
@@ -29,7 +29,7 @@ public class RetryWrap {
             throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
     }
 
-    static <T> void retry(AtomicBoolean stop, WrapReturn<T> r, RuntimeException e) {
+    private static <T> void retry(AtomicBoolean stop, WrapReturn<T> r, RuntimeException e) {
         logger.info("Calling retry method");
         for (int i = RETRY_DELAY; i >= 0; i--) {
             r.retry(i, e);
@@ -44,7 +44,7 @@ public class RetryWrap {
         }
     }
 
-    public static <T> T run(AtomicBoolean stop, WrapReturn<T> r) {
+    private static <T> T run(AtomicBoolean stop, WrapReturn<T> r) {
         logger.info("calling run");
         while (true) {
 
@@ -127,10 +127,10 @@ public class RetryWrap {
     }
 
     public interface Wrap {
-        public void retry(int delay, Throwable e);
+        void retry(int delay, Throwable e);
 
-        public void moved(URL url);
+        void moved(URL url);
 
-        public void download() throws IOException;
+        void download() throws IOException;
     }
 }

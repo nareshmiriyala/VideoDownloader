@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @XStreamAlias("DownloadInfo")
 public class DownloadInfo extends URLInfo {
-    public final static long PART_LENGTH = 10 * 1024 * 1024;
+    private final static long PART_LENGTH = 10 * 1024 * 1024;
     private final Logger logger = LoggerFactory.getLogger(DownloadInfo.class);
     /**
      * part we are going to downloadVideo.

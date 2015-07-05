@@ -5,10 +5,10 @@ import java.util.List;
 
 public class RecursiveThreadExecutor {
 
-    int maxThreads;
-    List<Job> threads = new ArrayList<>();
-    final List<Task> tasks = new ArrayList<>();
-    int waitingThreads = 0;
+    private int maxThreads;
+    private final List<Job> threads = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
+    private int waitingThreads = 0;
 
     /**
      * maxThread - limit max thread by number.
@@ -56,7 +56,7 @@ public class RecursiveThreadExecutor {
         }
     }
 
-    void createThread() {
+    private void createThread() {
         if (Thread.currentThread().isInterrupted())
             return;
 
@@ -65,11 +65,11 @@ public class RecursiveThreadExecutor {
         t.start();
     }
 
-    Task waitForNewTask() throws InterruptedException {
+    private Task waitForNewTask() throws InterruptedException {
         return waitForNewTask(null);
     }
 
-    Task waitForNewTask(Task taskEnd) throws InterruptedException {
+    private Task waitForNewTask(Task taskEnd) throws InterruptedException {
         synchronized (tasks) {
             waitingThreads++;
             try {
@@ -92,7 +92,7 @@ public class RecursiveThreadExecutor {
         }
     }
 
-    void waitTaskEnd(Task t) throws InterruptedException {
+    private void waitTaskEnd(Task t) throws InterruptedException {
         while (true) {
             Task tt = waitForNewTask(t);
             if (tt != null)
@@ -111,7 +111,7 @@ public class RecursiveThreadExecutor {
             waitTaskEnd(t);
     }
 
-    boolean executeTaskFlag(Task t) throws InterruptedException {
+    private boolean executeTaskFlag(Task t) throws InterruptedException {
         if (Thread.currentThread().isInterrupted())
             throw new InterruptedException("Current Thread Interrupted");
 
@@ -143,7 +143,7 @@ public class RecursiveThreadExecutor {
 
     public static class Task implements Runnable {
         Exception e;
-        Runnable r;
+        final Runnable r;
 
         boolean start = false;
         boolean end = false;

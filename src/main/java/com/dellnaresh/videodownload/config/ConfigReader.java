@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * @author nareshm
  */
 public class ConfigReader {
-    public volatile static ConfigReader uniqueInstance;
+    private volatile static ConfigReader uniqueInstance;
 
     private ConfigReader() {
 

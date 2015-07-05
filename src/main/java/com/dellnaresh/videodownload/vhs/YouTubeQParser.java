@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class YouTubeQParser extends YouTubeParser {
     private static final Logger logger = LoggerFactory.getLogger(YouTubeParser.class);
-    final VideoInfo.VideoQuality q;
+    private final VideoInfo.VideoQuality q;
 
     public YouTubeQParser(URL input, VideoInfo.VideoQuality q) {
         super(input);

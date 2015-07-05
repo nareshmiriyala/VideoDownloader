@@ -43,7 +43,7 @@ public class DirectRange extends Direct {
         return true;
     }
 
-    public void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
+    private void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Calling download Part method");
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;

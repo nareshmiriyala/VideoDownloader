@@ -21,11 +21,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectMultipart extends Direct {
 
-    static public final int THREAD_COUNT = 3;
+    private static final int THREAD_COUNT = 3;
     static public final int RETRY_DELAY = 10;
-    final LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
-    boolean fatal = false;
-    final Object lock = new Object();
+    private final LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
+    private boolean fatal = false;
+    private final Object lock = new Object();
     private final Logger logger = LoggerFactory.getLogger(DirectMultipart.class);
 
     /**
@@ -60,7 +60,7 @@ public class DirectMultipart extends Direct {
      *
      * @param part
      */
-    void downloadPart(DownloadInfo.Part part, AtomicBoolean stop, Runnable notify) throws IOException {
+    private void downloadPart(DownloadInfo.Part part, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Downloading video part {}", part.getNumber());
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
@@ -143,26 +143,26 @@ public class DirectMultipart extends Direct {
 
     }
 
-    boolean fatal() {
+    private boolean fatal() {
         synchronized (lock) {
             return fatal;
         }
     }
 
-    void fatal(boolean b) {
+    private void fatal(boolean b) {
         synchronized (lock) {
             fatal = b;
         }
     }
 
-    String trimLen(String str, int len) {
+    private String trimLen(String str, int len) {
         if (str.length() > len)
             return str.substring(0, len / 2) + "..." + str.substring(str.length() - len / 2, str.length());
         else
             return str;
     }
 
-    void downloadWorker(final DownloadInfo.Part part, final AtomicBoolean stop, final Runnable notify) throws InterruptedException {
+    private void downloadWorker(final DownloadInfo.Part part, final AtomicBoolean stop, final Runnable notify) throws InterruptedException {
         logger.info("Called Download Worker");
         limitThreadPool.blockExecute(new Runnable() {
             @Override
@@ -222,7 +222,7 @@ public class DirectMultipart extends Direct {
      *
      * @return
      */
-    DownloadInfo.Part getPart() {
+    private DownloadInfo.Part getPart() {
         for (DownloadInfo.Part p : downloadInfo.getParts()) {
             if (!p.getState().equals(DownloadInfo.Part.States.QUEUED))
                 continue;
@@ -239,7 +239,7 @@ public class DirectMultipart extends Direct {
      * @return true - done. false - not done yet
      * @throws InterruptedException
      */
-    boolean done(AtomicBoolean stop) {
+    private boolean done(AtomicBoolean stop) {
         if (stop.get())
             throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
         if (Thread.interrupted())

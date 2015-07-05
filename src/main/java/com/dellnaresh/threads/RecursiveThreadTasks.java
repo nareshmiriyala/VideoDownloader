@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RecursiveThreadTasks {
-    RecursiveThreadExecutor es;
+class RecursiveThreadTasks {
+    final RecursiveThreadExecutor es;
 
-    List<RecursiveThreadExecutor.Task> tasks = new ArrayList<>();
+    final List<RecursiveThreadExecutor.Task> tasks = new ArrayList<>();
 
-    AtomicBoolean interrupted;
+    final AtomicBoolean interrupted;
 
     public RecursiveThreadTasks(RecursiveThreadExecutor e) {
         this.es = e;

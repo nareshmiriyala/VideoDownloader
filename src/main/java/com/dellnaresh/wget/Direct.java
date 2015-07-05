@@ -19,7 +19,7 @@ public abstract class Direct {
     /**
      * size of read buffer
      */
-    static public final int BUF_SIZE = 4 * 1024;
+    static final int BUF_SIZE = 4 * 1024;
     File target = null;
     final DownloadInfo downloadInfo;
 
@@ -27,7 +27,7 @@ public abstract class Direct {
      * @param downloadInfo downloadVideo file information
      * @param target       target file
      */
-    public Direct(DownloadInfo downloadInfo, File target) {
+    Direct(DownloadInfo downloadInfo, File target) {
         this.target = target;
         this.downloadInfo = downloadInfo;
     }

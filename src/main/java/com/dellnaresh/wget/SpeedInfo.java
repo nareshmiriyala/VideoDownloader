@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 public class SpeedInfo {
 
-    public static final int SAMPLE_LENGTH = 1000;
-    public static final int SAMPLE_MAX = 20;
-    protected final ArrayList<Sample> samples = new ArrayList<>();
-    protected long peak;
+    private static final int SAMPLE_LENGTH = 1000;
+    private static final int SAMPLE_MAX = 20;
+    private final ArrayList<Sample> samples = new ArrayList<>();
+    private long peak;
     // start sample use to calculateMultipartDownloadProgress average speed
-    protected Sample start = null;
+    private Sample start = null;
 
     public SpeedInfo() {
     }
@@ -134,7 +134,7 @@ public class SpeedInfo {
     // protected
     //
 
-    protected void add(Sample s) {
+    private void add(Sample s) {
         // checkConnection if we have broken / restarted downloadVideo. checkConnection if here some
         // samples
         if (samples.size() > 0) {
@@ -160,7 +160,7 @@ public class SpeedInfo {
      *
      * @return
      */
-    protected int getRowSamples() {
+    private int getRowSamples() {
         for (int i = samples.size() - 1; i >= 0; i--) {
             Sample s = samples.get(i);
             if (s.start)
@@ -170,7 +170,7 @@ public class SpeedInfo {
         return samples.size();
     }
 
-    protected long getLastUpdate() {
+    private long getLastUpdate() {
         if (samples.size() == 0)
             return 0;
 
@@ -178,7 +178,7 @@ public class SpeedInfo {
         return s.now;
     }
 
-    protected void peakUpdate() {
+    private void peakUpdate() {
         peak = 0;
         for (Sample s : samples) {
             if (peak < s.current)

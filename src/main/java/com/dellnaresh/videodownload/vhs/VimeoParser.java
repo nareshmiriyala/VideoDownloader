@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class VimeoParser extends VideoParser {
 
-    final URL source;
+    private final URL source;
 
     public VimeoParser(URL input) {
         this.source = input;
@@ -29,7 +29,7 @@ public class VimeoParser extends VideoParser {
         return url.toString().contains("vimeo.com");
     }
 
-    public static String extractId(URL url) {
+    private static String extractId(URL url) {
         // standard web url. format: "https://vimeo.com/49243107" or
         // "http://vimeo.com/channels/staffpicks/49243107"
         {

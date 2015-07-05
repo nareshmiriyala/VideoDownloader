@@ -46,7 +46,7 @@ public class VideoInfo {
     /**
      * reset videoinfo state. make it simialar as after calling constructor
      */
-    public void reset() {
+    private void reset() {
         setState(States.QUEUE);
 
         downloadInfo = null;
@@ -93,7 +93,7 @@ public class VideoInfo {
         return webUrl;
     }
 
-    public void setWebUrl(URL source) {
+    private void setWebUrl(URL source) {
         this.webUrl = source;
     }
 

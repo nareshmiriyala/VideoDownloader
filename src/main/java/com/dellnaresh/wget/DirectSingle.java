@@ -49,7 +49,7 @@ public class DirectSingle extends Direct {
         return true;
     }
 
-    void downloadFile(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
+    private void downloadFile(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Calling downloadFile method");
         if (stop.get())
             throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);

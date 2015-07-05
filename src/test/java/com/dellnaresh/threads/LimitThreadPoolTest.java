@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class LimitThreadPoolTest {
 
-    static AtomicInteger c = new AtomicInteger();
+    static final AtomicInteger c = new AtomicInteger();
 
     public static void main(String[] args) {
         try {
