@@ -186,4 +186,15 @@ public class VideoInfo {
         QUEUE, EXTRACTING, EXTRACTING_DONE, DOWNLOADING, RETRYING, DONE, ERROR, STOP
     }
 
+    @Override
+    public String toString() {
+        return "VideoInfo{" +
+                "webUrl=" + webUrl +
+                ", videoQuality=" + videoQuality +
+                ", title='" + title + '\'' +
+                ", icon=" + icon +
+                ", delay=" + delay +
+                ", downloadInfo=" + downloadInfo +
+                '}';
+    }
 }

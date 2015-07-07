@@ -49,15 +49,6 @@ public class DirectSingle extends Direct {
         return true;
     }
 
-    private void downloadFile(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
-        logger.info("Calling downloadFile method");
-        if (stop.get())
-            throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
-        if (Thread.interrupted())
-            throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
-
-        FileUtils.copyURLToFile(info.getSource(), target);
-    }
 
     void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Calling downloadPart method");

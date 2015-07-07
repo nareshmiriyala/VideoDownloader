@@ -1,8 +1,12 @@
 package com.dellnaresh.wget;
 
+import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.DownloadInfo;
+import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -33,5 +37,14 @@ public abstract class Direct {
     }
 
     abstract public void download(AtomicBoolean stop, Runnable notify);
+
+    protected void downloadFile(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
+        if (stop.get())
+            throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
+        if (Thread.interrupted())
+            throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
+
+        FileUtils.copyURLToFile(info.getSource(), target);
+    }
 
 }

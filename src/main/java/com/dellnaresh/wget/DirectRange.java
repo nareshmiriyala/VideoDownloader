@@ -120,8 +120,8 @@ public class DirectRange extends Direct {
                 public void download() throws IOException {
                     downloadInfo.setState(URLInfo.States.DOWNLOADING);
                     notify.run();
-
-                    downloadPart(downloadInfo, stop, notify);
+                    downloadFile(downloadInfo,stop,notify);
+//                    downloadPart(downloadInfo, stop, notify);
                 }
 
                 @Override
