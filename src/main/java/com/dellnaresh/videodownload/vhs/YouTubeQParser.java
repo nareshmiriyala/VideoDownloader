@@ -45,10 +45,13 @@ public class YouTubeQParser extends YouTubeParser {
 
             if (found) {
                 videoInfo.setVideoQuality(v.videoQuality);
-                DownloadInfo info = new DownloadInfo(v.url);
-                videoInfo.setDownloadInfo(info);
-                return info;
+
+            }else {
+                videoInfo.setVideoQuality(v.videoQuality);
             }
+            DownloadInfo info = new DownloadInfo(v.url);
+            videoInfo.setDownloadInfo(info);
+            return info;
         }
 
         // throw downloadVideo stop if user choice not maximum quality and we have no

@@ -17,7 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class VideoDownload {
+public class VideoDownload {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoDownload.class);
     private final VideoInfo videoInfo;
