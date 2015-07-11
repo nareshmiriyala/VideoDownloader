@@ -93,7 +93,7 @@ public class VimeoParser extends VideoParser {
                 Pattern u = Pattern.compile("data-config-url=\"([^\"]+)\"");
                 Matcher um = u.matcher(html);
                 if (!um.find()) {
-                    throw new DownloadError("unknown config vimeo respond");
+                    throw new DownloadError("unknown util vimeo respond");
                 }
                 config = um.group(1);
             }
