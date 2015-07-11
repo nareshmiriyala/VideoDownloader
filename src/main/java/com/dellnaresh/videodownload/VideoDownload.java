@@ -15,6 +15,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoDownload {
@@ -224,6 +227,12 @@ public class VideoDownload {
             }
 
             targetFile = f;
+            Path path = Paths.get(targetFile.getAbsolutePath());
+
+            if (Files.exists(path)) {
+                throw new DownloadError("File already downloaded");
+            }
+
 
             // if we dont have resumeDownload file (targetForce==null) then we shall
             // start over.
