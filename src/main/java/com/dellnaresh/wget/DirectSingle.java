@@ -4,7 +4,6 @@ import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.DownloadInfo;
 import com.dellnaresh.wget.info.URLInfo;
 import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +52,12 @@ public class DirectSingle extends Direct {
     void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Calling downloadPart method");
         RandomAccessFile fos = null;
+        HttpURLConnection conn=null;
 
         try {
             URL url = info.getSource();
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
 
             conn.setConnectTimeout(CONNECT_TIMEOUT);
             conn.setReadTimeout(READ_TIMEOUT);
@@ -68,7 +68,8 @@ public class DirectSingle extends Direct {
 
             File f = target;
             info.setCount(0);
-            f.createNewFile();
+            if (!f.exists())
+                f.createNewFile();
 
             fos = new RandomAccessFile(f, "rw");
 
@@ -95,6 +96,10 @@ public class DirectSingle extends Direct {
         } finally {
             if (fos != null)
                 fos.close();
+            if(conn!=null){
+                conn.disconnect();
+            }
+
         }
     }
 
@@ -110,8 +115,8 @@ public class DirectSingle extends Direct {
                 public void download() throws IOException {
                     downloadInfo.setState(URLInfo.States.DOWNLOADING);
                     notify.run();
-                    downloadFile(downloadInfo, stop, notify);
-//                    downloadPart(downloadInfo, stop, notify);
+//                    downloadFile(downloadInfo, stop, notify);
+                    downloadPart(downloadInfo, stop, notify);
                 }
 
                 @Override

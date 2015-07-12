@@ -12,4 +12,6 @@ public class Constants {
         public static final String FATAL = "fatal";
         public static final String INTERRUPTED = "interrupted";
     }
+    public static final String SMALL_FILE_URL ="https://www.youtube.com/watch?v=7M-jsjLB20Y";
+    public static final String DOWNLOAD_DIRECTORY_CONFIG="download.directory";
 }
