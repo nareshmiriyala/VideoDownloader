@@ -47,11 +47,12 @@ public class DirectRange extends Direct {
         logger.info("Calling download Part method");
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
+        HttpURLConnection conn=null;
 
         try {
             URL url = info.getSource();
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
 
             conn.setConnectTimeout(CONNECT_TIMEOUT);
             conn.setReadTimeout(READ_TIMEOUT);
@@ -65,7 +66,7 @@ public class DirectRange extends Direct {
                 f.createNewFile();
             info.setCount(FileUtils.sizeOf(f));
 
-            if (info.getCount() >= info.getLength()) {
+            if (info.getLength()!=null && info.getCount() >= info.getLength()) {
                 notify.run();
                 return;
             }
@@ -105,6 +106,8 @@ public class DirectRange extends Direct {
                 fos.close();
             if (binaryreader != null)
                 binaryreader.close();
+            if(conn!=null)
+                conn.disconnect();
         }
     }
 
