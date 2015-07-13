@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DirectMultipart extends Direct {
 
     private static final int THREAD_COUNT = 3;
-    static public final int RETRY_DELAY = 10;
     private final LimitThreadPool limitThreadPool = new LimitThreadPool(THREAD_COUNT);
     private boolean fatal = false;
     private final Object lock = new Object();
@@ -64,7 +63,7 @@ public class DirectMultipart extends Direct {
         logger.info("Downloading video part {}", part.getNumber());
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
-
+        HttpURLConnection conn=null;
         try {
             URL url = downloadInfo.getSource();
 
@@ -75,7 +74,6 @@ public class DirectMultipart extends Direct {
             if (end - start + 1 == 0)
                 return;
 
-            HttpURLConnection conn;
             conn = (HttpURLConnection) url.openConnection();
 
             conn.setConnectTimeout(CONNECT_TIMEOUT);
@@ -253,6 +251,10 @@ public class DirectMultipart extends Direct {
     @Override
     public void download(AtomicBoolean stop, Runnable notify) {
         logger.info("Calling Download");
+        if(downloadInfo.getParts()==null){
+            logger.error("Download parts can't be null");
+            throw new DownloadMultipartError(downloadInfo);
+        }
         for (DownloadInfo.Part p : downloadInfo.getParts()) {
             if (p.getState().equals(DownloadInfo.Part.States.DONE))
                 continue;

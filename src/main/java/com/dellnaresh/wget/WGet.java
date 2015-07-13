@@ -28,7 +28,7 @@ public class WGet {
      * @param source
      * @param target
      */
-    private WGet(URL source, File target) {
+    public WGet(URL source, File target) {
         create(source, target);
     }
 
@@ -40,7 +40,7 @@ public class WGet {
      * @param downloadInfo
      * @param targetFile
      */
-    private WGet(DownloadInfo downloadInfo, File targetFile) {
+    public WGet(DownloadInfo downloadInfo, File targetFile) {
         this.info = downloadInfo;
         this.targetFile = targetFile;
         create();
@@ -122,7 +122,7 @@ public class WGet {
 
     private static String getHtml(final DownloadInfo source, final HtmlLoader load, final AtomicBoolean stop) {
 
-        return RetryWrap.wrap(stop, new RetryWrap.WrapReturn<String>() {
+        return RetryWrap.wrap(stop, new WrapReturn<String>() {
             DownloadInfo info = source;
 
             @Override
@@ -172,7 +172,12 @@ public class WGet {
                     if (stop.get())
                         throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
                 }
-
+                if(is!=null){
+                    is.close();
+                }
+                if(br!=null){
+                    br.close();
+                }
                 return contents.toString();
             }
 

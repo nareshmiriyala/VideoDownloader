@@ -233,11 +233,6 @@ public class VideoDownload {
                 throw new DownloadError("File already downloaded");
             }
 
-            if (Files.notExists(path)) {
-                // file is not exist
-            }
-
-
             // if we dont have resumeDownload file (targetForce==null) then we shall
             // start over.
             downloadInfo.reset();

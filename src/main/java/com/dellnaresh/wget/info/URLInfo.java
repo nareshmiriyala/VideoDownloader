@@ -2,6 +2,7 @@ package com.dellnaresh.wget.info;
 
 import com.dellnaresh.wget.Direct;
 import com.dellnaresh.wget.RetryWrap;
+import com.dellnaresh.wget.WrapReturn;
 import com.dellnaresh.wget.info.ex.DownloadRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,10 +76,9 @@ public class URLInfo extends BrowserInfo {
 
     void extract(final AtomicBoolean stop, final Runnable notify) {
         logger.info("Called extract");
+        HttpURLConnection conn=null;
         try {
-            HttpURLConnection conn;
-
-            conn = RetryWrap.wrap(stop, new RetryWrap.WrapReturn<HttpURLConnection>() {
+            conn = RetryWrap.wrap(stop, new WrapReturn<HttpURLConnection>() {
                 URL url = source;
 
                 @Override

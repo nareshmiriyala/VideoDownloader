@@ -117,15 +117,6 @@ public class RetryWrap {
                 throw new DownloadIOCodeError(416);
         }
     }
-
-    public interface WrapReturn<T> {
-        void retry(int delay, Throwable e);
-
-        void moved(URL url);
-
-        T download() throws IOException;
-    }
-
     public interface Wrap {
         void retry(int delay, Throwable e);
 

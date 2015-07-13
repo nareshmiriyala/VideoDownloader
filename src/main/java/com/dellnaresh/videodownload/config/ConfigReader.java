@@ -33,7 +33,7 @@ public class ConfigReader {
         return uniqueInstance;
     }
 
-    public String getPropertyValue(String property) throws FileNotFoundException {
+    public String getPropertyValue(String property) throws IOException {
         Properties prop = new Properties();
         String propFileName = "config.properties";
 
@@ -47,6 +47,9 @@ public class ConfigReader {
             }
         } else {
             throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+        }
+        if(inputStream!=null){
+            inputStream.close();
         }
 
         // get the property value and print it out

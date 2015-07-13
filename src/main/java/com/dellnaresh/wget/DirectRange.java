@@ -106,8 +106,6 @@ public class DirectRange extends Direct {
                 fos.close();
             if (binaryreader != null)
                 binaryreader.close();
-            if(conn!=null)
-                conn.disconnect();
         }
     }
 
