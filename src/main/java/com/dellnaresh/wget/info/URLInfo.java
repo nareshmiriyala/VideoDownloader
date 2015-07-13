@@ -76,7 +76,7 @@ public class URLInfo extends BrowserInfo {
 
     void extract(final AtomicBoolean stop, final Runnable notify) {
         logger.info("Called extract");
-        HttpURLConnection conn=null;
+        HttpURLConnection conn;
         try {
             conn = RetryWrap.wrap(stop, new WrapReturn<HttpURLConnection>() {
                 URL url = source;

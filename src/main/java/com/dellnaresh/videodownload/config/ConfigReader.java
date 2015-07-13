@@ -48,9 +48,7 @@ public class ConfigReader {
         } else {
             throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
         }
-        if(inputStream!=null){
-            inputStream.close();
-        }
+        inputStream.close();
 
         // get the property value and print it out
         return prop.getProperty(property);

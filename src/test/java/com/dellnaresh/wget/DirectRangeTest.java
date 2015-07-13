@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
@@ -17,8 +16,6 @@ import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.times;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * Created by nareshm on 12/07/2015.

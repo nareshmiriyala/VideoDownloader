@@ -47,7 +47,7 @@ public class DirectRange extends Direct {
         logger.info("Calling download Part method");
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
-        HttpURLConnection conn=null;
+        HttpURLConnection conn;
 
         try {
             URL url = info.getSource();

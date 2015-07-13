@@ -63,7 +63,7 @@ public class DirectMultipart extends Direct {
         logger.info("Downloading video part {}", part.getNumber());
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
-        HttpURLConnection conn=null;
+        HttpURLConnection conn;
         try {
             URL url = downloadInfo.getSource();
 

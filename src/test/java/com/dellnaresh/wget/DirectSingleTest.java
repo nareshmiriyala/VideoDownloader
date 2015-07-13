@@ -16,7 +16,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.powermock.api.mockito.PowerMockito.when;
 

@@ -172,12 +172,8 @@ public class WGet {
                     if (stop.get())
                         throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
                 }
-                if(is!=null){
-                    is.close();
-                }
-                if(br!=null){
-                    br.close();
-                }
+                is.close();
+                br.close();
                 return contents.toString();
             }
 

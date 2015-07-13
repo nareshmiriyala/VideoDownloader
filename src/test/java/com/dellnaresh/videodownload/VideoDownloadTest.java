@@ -5,7 +5,6 @@ import com.dellnaresh.videodownload.config.ConfigReader;
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
 import com.dellnaresh.wget.info.DownloadInfo;
-import com.thoughtworks.xstream.mapper.Mapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
