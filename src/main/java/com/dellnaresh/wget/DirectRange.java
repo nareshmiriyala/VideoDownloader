@@ -61,7 +61,7 @@ public class DirectRange extends Direct {
             if (info.getReferrer() != null)
                 conn.setRequestProperty(Constants.REFERRER, info.getReferrer().toExternalForm());
 
-            File f = target;
+            File f = getTarget();
             if (!f.exists())
                 f.createNewFile();
             info.setCount(FileUtils.sizeOf(f));
@@ -81,7 +81,7 @@ public class DirectRange extends Direct {
             byte[] bytes = new byte[BUF_SIZE];
             int read;
 
-            RetryWrap.checkConnection(conn);
+//            RetryWrap.checkConnection(conn);
 
             binaryreader = new BufferedInputStream(conn.getInputStream());
 

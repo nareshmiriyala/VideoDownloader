@@ -4,9 +4,9 @@ import com.dellnaresh.util.Constants;
 import com.dellnaresh.wget.info.DownloadInfo;
 import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -24,7 +24,7 @@ public abstract class Direct {
      * size of read buffer
      */
     static final int BUF_SIZE = 4 * 1024;
-    File target = null;
+    private File target = null;
     final DownloadInfo downloadInfo;
 
     /**
@@ -39,12 +39,24 @@ public abstract class Direct {
     abstract public void download(AtomicBoolean stop, Runnable notify);
 
     protected void downloadFile(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
+        info.setCount(0);
+        OutputStream outputStream=new FileOutputStream(target);
+        InputStream inputStream = info.getSource().openStream();
+        IOUtils.copy(inputStream,outputStream);
+
         if (stop.get())
             throw new DownloadInterruptedError(Constants.ERRORS.STOPPED);
         if (Thread.interrupted())
             throw new DownloadInterruptedError(Constants.ERRORS.INTERRUPTED);
 
-        FileUtils.copyURLToFile(info.getSource(), target);
+//        FileUtils.copyURLToFile(info.getSource(), target);
     }
 
+    public File getTarget() {
+        return target;
+    }
+
+    public void setTarget(File target) {
+        this.target = target;
+    }
 }

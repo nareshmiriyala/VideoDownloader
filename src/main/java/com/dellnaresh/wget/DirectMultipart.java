@@ -10,10 +10,7 @@ import com.dellnaresh.wget.info.ex.DownloadRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,7 +59,7 @@ public class DirectMultipart extends Direct {
     private void downloadPart(DownloadInfo.Part part, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Downloading video part {}", part.getNumber());
         RandomAccessFile fos = null;
-        BufferedInputStream binaryreader = null;
+        InputStream binaryreader = null;
         HttpURLConnection conn;
         try {
             URL url = downloadInfo.getSource();
@@ -83,7 +80,7 @@ public class DirectMultipart extends Direct {
             if (downloadInfo.getReferrer() != null)
                 conn.setRequestProperty(Constants.REFERRER, downloadInfo.getReferrer().toExternalForm());
 
-            File f = target;
+            File f = getTarget();
 
             fos = new RandomAccessFile(f, "rw");
 
@@ -93,7 +90,7 @@ public class DirectMultipart extends Direct {
             byte[] bytes = new byte[BUF_SIZE];
             int read;
 
-            RetryWrap.checkConnection(conn);
+//            RetryWrap.checkConnection(conn);
 
             binaryreader = new BufferedInputStream(conn.getInputStream());
 

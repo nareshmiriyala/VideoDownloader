@@ -7,10 +7,7 @@ import com.dellnaresh.wget.info.ex.DownloadInterruptedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DirectSingle extends Direct {
 
     private static final Logger logger = LoggerFactory.getLogger(DirectSingle.class);
+    public static final int EOF = -1;
 
     /**
      * @param downloadInfo downloadVideo file information
@@ -51,8 +49,8 @@ public class DirectSingle extends Direct {
 
     void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
         logger.info("Calling downloadPart method");
-        RandomAccessFile fos = null;
-        HttpURLConnection conn=null;
+        OutputStream fos = null;
+        HttpURLConnection conn = null;
 
         try {
             URL url = info.getSource();
@@ -66,21 +64,21 @@ public class DirectSingle extends Direct {
             if (info.getReferrer() != null)
                 conn.setRequestProperty(Constants.REFERRER, info.getReferrer().toExternalForm());
 
-            File f = target;
+            File f = getTarget();
             info.setCount(0);
             if (!f.exists())
                 f.createNewFile();
 
-            fos = new RandomAccessFile(f, "rw");
+            fos = new FileOutputStream(f);
 
             byte[] bytes = new byte[BUF_SIZE];
-            int read;
+            int read = 0;
 
-            RetryWrap.checkConnection(conn);
+//            RetryWrap.checkConnection(conn);
 
-            BufferedInputStream binaryreader = new BufferedInputStream(conn.getInputStream());
+            InputStream binaryreader = new BufferedInputStream(conn.getInputStream());
 
-            while ((read = binaryreader.read(bytes)) > 0) {
+            while (EOF != (read = binaryreader.read(bytes))) {
                 fos.write(bytes, 0, read);
 
                 info.setCount(info.getCount() + read);
@@ -96,7 +94,7 @@ public class DirectSingle extends Direct {
         } finally {
             if (fos != null)
                 fos.close();
-            if(conn!=null){
+            if (conn != null) {
                 conn.disconnect();
             }
 
