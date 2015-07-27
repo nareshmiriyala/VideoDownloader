@@ -161,7 +161,7 @@ public class URLInfo extends BrowserInfo {
         // may raise an exception if not supported by server
         conn.setRequestProperty("Range", "bytes=" + 0 + "-" + 0);
 
-        RetryWrap.checkConnection(conn);
+//        RetryWrap.checkConnection(conn);
 
         String range = conn.getHeaderField("Content-Range");
         if (range == null) {
@@ -197,7 +197,7 @@ public class URLInfo extends BrowserInfo {
 
         setRange(false);
 
-        RetryWrap.checkConnection(conn);
+//        RetryWrap.checkConnection(conn);
 
         int len = conn.getContentLength();
         if (len >= 0) {

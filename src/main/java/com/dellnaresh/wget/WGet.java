@@ -143,7 +143,7 @@ public class WGet {
                 if (info.getReferrer() != null)
                     conn.setRequestProperty(Constants.REFERRER, info.getReferrer().toExternalForm());
 
-                RetryWrap.checkConnection(conn);
+//                RetryWrap.checkConnection(conn);
 
                 InputStream is = conn.getInputStream();
 
