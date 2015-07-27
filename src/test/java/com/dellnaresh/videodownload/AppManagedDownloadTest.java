@@ -43,10 +43,10 @@ public class AppManagedDownloadTest {
                         case EXTRACTING:
                         case EXTRACTING_DONE:
                         case DONE:
-                            logger.info("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
+                            logger.debug("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
                             break;
                         case RETRYING:
-                            logger.info("Retrying downloadVideo with delay {} having state {}", i1.getDelay(), i1.getState());
+                            logger.debug("Retrying downloadVideo with delay {} having state {}", i1.getDelay(), i1.getState());
                             break;
                         case STOP:
                             logger.error("Stopping download");

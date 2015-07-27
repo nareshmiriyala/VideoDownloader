@@ -129,7 +129,7 @@ public class VideoDownload {
     }
 
     void retryDownload(VideoParser videoParser, AtomicBoolean stop, Runnable notify, Throwable e) {
-        logger.info("Starting retryDownload of video ");
+        logger.debug("Starting retryDownload of video ");
         boolean retracted = false;
 
         while (!retracted) {
@@ -285,7 +285,7 @@ public class VideoDownload {
      * @param notify
      */
     public void extractVideo(VideoParser videoParser, AtomicBoolean stop, Runnable notify) {
-        logger.info("Starting extraction of video {}", videoInfo.getTitle());
+        logger.debug("Starting extraction of video {}", videoInfo.getTitle());
         while (done(stop)) {
             try {
                 if (videoInfo.empty()) {
@@ -362,7 +362,7 @@ public class VideoDownload {
     }
 
     public void downloadVideo(VideoParser user, final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Starting downloadVideo of video {}", videoInfo.getTitle());
+        logger.debug("Starting downloadVideo of video {}", videoInfo.getTitle());
         if (targetFile == null && targetForce == null && targetDir == null) {
             throw new RuntimeException("Set downloadVideo file or directory first");
         }

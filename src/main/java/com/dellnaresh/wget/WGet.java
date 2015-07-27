@@ -54,7 +54,7 @@ public class WGet {
     }
 
     private static File calcName(DownloadInfo downloadInfo, File target) {
-        logger.info("Calling calculate name");
+        logger.debug("Calling calculate name");
         // target -
         // 1) can point to directory.
         // - generate exclusive (1) name.
@@ -100,7 +100,7 @@ public class WGet {
     }
 
     public static String getHtml(URL source) {
-        logger.info("Calling getHtml");
+        logger.debug("Calling getHtml");
         return getHtml(source, new HtmlLoader() {
             @Override
             public void notifyRetry(int delay, Throwable e) {

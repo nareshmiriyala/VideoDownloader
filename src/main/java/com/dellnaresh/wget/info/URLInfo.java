@@ -75,7 +75,7 @@ public class URLInfo extends BrowserInfo {
     }
 
     void extract(final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Called extract");
+        logger.debug("Called extract");
         HttpURLConnection conn;
         try {
             conn = RetryWrap.wrap(stop, new WrapReturn<HttpURLConnection>() {
@@ -148,7 +148,7 @@ public class URLInfo extends BrowserInfo {
 
     // if range failed - do plain downloadVideo with no retrys's
     private HttpURLConnection extractRange(URL source) throws IOException {
-        logger.info("Checking if its extra range download");
+        logger.debug("Checking if its extra range download");
         HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
         conn.setConnectTimeout(Direct.CONNECT_TIMEOUT);
@@ -165,7 +165,7 @@ public class URLInfo extends BrowserInfo {
 
         String range = conn.getHeaderField("Content-Range");
         if (range == null) {
-            logger.info("Extra Range not supported");
+            logger.debug("Extra Range not supported");
             throw new RuntimeException("range not supported");
         }
 
@@ -174,7 +174,7 @@ public class URLInfo extends BrowserInfo {
         if (m.find()) {
             setLength(new Long(m.group(1)));
         } else {
-            logger.info("Extra Range not supported");
+            logger.debug("Extra Range not supported");
             throw new RuntimeException("range not supported");
         }
 
@@ -185,7 +185,7 @@ public class URLInfo extends BrowserInfo {
 
     // if range failed - do plain downloadVideo with no retrys's
     private HttpURLConnection extractNormal(URL source) throws IOException {
-        logger.info("Checking if its normal download");
+        logger.debug("Checking if its normal download");
         HttpURLConnection conn = (HttpURLConnection) source.openConnection();
 
         conn.setConnectTimeout(Direct.CONNECT_TIMEOUT);

@@ -32,7 +32,7 @@ public class DirectRange extends Direct {
      * @return return true - if all ok, false - if downloadVideo can not be restored.
      */
     public static boolean canResume(DownloadInfo downloadInfo, File targetFile) {
-        logger.info("Calling canResume method");
+        logger.debug("Calling canResume method");
         if (targetFile.exists()) {
             if (downloadInfo.getCount() != targetFile.length())
                 return false;
@@ -44,7 +44,7 @@ public class DirectRange extends Direct {
     }
 
     private void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
-        logger.info("Calling download Part method");
+        logger.debug("Calling download Part method");
         RandomAccessFile fos = null;
         BufferedInputStream binaryreader = null;
         HttpURLConnection conn;
@@ -111,7 +111,7 @@ public class DirectRange extends Direct {
 
     @Override
     public void download(final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Called download method");
+        logger.debug("Called download method");
         downloadInfo.setState(URLInfo.States.DOWNLOADING);
         notify.run();
 

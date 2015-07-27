@@ -23,7 +23,7 @@ public class YouTubeQParser extends YouTubeParser {
     }
 
     public DownloadInfo extractDownloadInfo(final VideoInfo videoInfo, final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Starting extraction of video {}", videoInfo.getTitle());
+        logger.debug("Starting extraction of video {}", videoInfo.getTitle());
         List<VideoDownload> sNextVideoURL = extractLinks(videoInfo, stop, notify);
 
         if (sNextVideoURL.size() == 0) {

@@ -102,7 +102,7 @@ public class YouTubeParser extends VideoParser {
 
     @Override
     public List<VideoDownload> extractLinks(final VideoInfo videoInfo, final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Extracting links of video ", videoInfo.getTitle());
+        logger.debug("Extracting links of video {}", videoInfo.getTitle());
         try {
             try {
 
@@ -133,7 +133,7 @@ public class YouTubeParser extends VideoParser {
      */
     private List<VideoDownload> streamCpature(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        logger.info("starting streamCapture of video ", info.getTitle());
+        logger.debug("starting streamCapture of video {}", info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String html;
@@ -177,7 +177,7 @@ public class YouTubeParser extends VideoParser {
 
     private List<VideoDownload> extractHTML(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        logger.info("starting extractHTML of video ", info.getTitle());
+        logger.debug("starting extractHTML of video ", info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String id = extractId(source);
@@ -194,7 +194,7 @@ public class YouTubeParser extends VideoParser {
         String url_encoded_fmt_stream_map = URLDecoder.decode(foundMessage, "UTF-8");
         String[] urlStrings = url_encoded_fmt_stream_map.split("url=");
         URL urlValue = new URL(urlStrings[1]);
-        logger.info("Value of url to be downloaded {}", urlStrings[1]);
+        logger.debug("Value of url to be downloaded {}", urlStrings[1]);
         VideoInfo.VideoQuality vd = itagMap.get(101);
         sNextVideoURL.add(new VideoDownload(vd, urlValue));
 //        extractUrlEncodedVideos(sNextVideoURL, url_encoded_fmt_stream_map);
@@ -234,7 +234,7 @@ public class YouTubeParser extends VideoParser {
      */
     private List<VideoDownload> extractEmbedded(final VideoInfo info, final AtomicBoolean stop, final Runnable notify)
             throws Exception {
-        logger.info("starting extractEmbedded of video ", info.getTitle());
+        logger.debug("starting extractEmbedded of video ", info.getTitle());
         List<VideoDownload> sNextVideoURL = new ArrayList<>();
 
         String id = extractId(source);
@@ -393,7 +393,7 @@ public class YouTubeParser extends VideoParser {
     // http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 
     private void extractUrlEncodedVideos(List<VideoDownload> sNextVideoURL, String sline) throws Exception {
-        logger.info("Extracting url encoded videos");
+        logger.debug("Extracting url encoded videos");
         String[] urlStrings = sline.split("url=");
 
         for (String urlString : urlStrings) {

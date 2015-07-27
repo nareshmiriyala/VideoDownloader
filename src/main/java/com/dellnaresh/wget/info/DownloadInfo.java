@@ -37,7 +37,7 @@ public class DownloadInfo extends URLInfo {
      * @return
      */
     synchronized public boolean isMultiPart() {
-        logger.info("Check is multi part video");
+        logger.debug("Check is multi part video");
         if (!getRange())
             return false;
 
@@ -60,7 +60,7 @@ public class DownloadInfo extends URLInfo {
      * downloadVideo progress
      */
     synchronized public void calculateMultipartDownloadProgress() {
-        logger.info("Calculating multi part video download progress");
+        logger.debug("Calculating multi part video download progress");
         setCount(0);
 
         for (Part p : getParts())
@@ -72,7 +72,7 @@ public class DownloadInfo extends URLInfo {
     }
 
     synchronized public void enableMultipart() {
-        logger.info("Enable multi part download");
+        logger.debug("Enable multi part download");
         if (empty())
             throw new RuntimeException("Empty Download info, cant set isMultiPart");
 
@@ -108,7 +108,8 @@ public class DownloadInfo extends URLInfo {
      * @return true - possible to resumeDownload from new location
      */
     synchronized public boolean resumeDownload(DownloadInfo newSource) {
-        logger.info("Resuming the download");
+        logger.debug(
+                "Resuming the download");
         if (!newSource.getRange())
             return false;
 

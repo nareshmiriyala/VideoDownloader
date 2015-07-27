@@ -100,7 +100,7 @@ public class VideoInfo {
     public void extractDownloadInfo(VideoParser ei, AtomicBoolean stop, Runnable notify) {
 
         if (ei == null && YouTubeParser.probe(webUrl)) {
-            logger.info("Initialized YouTubeParser");
+            logger.debug("Initialized YouTubeParser");
             ei = new YouTubeParser(webUrl);
         }
 

@@ -15,7 +15,7 @@ public class RetryWrap {
     private static final Logger logger = LoggerFactory.getLogger(RetryWrap.class);
 
     private static <T> void moved(AtomicBoolean stop, WrapReturn<T> r, DownloadMoved e) {
-        logger.info("Calling moved method");
+        logger.debug("Calling moved method");
         hadleExceptions(stop);
 
         r.moved(e.getMoved());
@@ -30,7 +30,7 @@ public class RetryWrap {
     }
 
     private static <T> void retry(AtomicBoolean stop, WrapReturn<T> r, RuntimeException e) {
-        logger.info("Calling retry method");
+        logger.debug("Calling retry method");
         for (int i = RETRY_DELAY; i >= 0; i--) {
             r.retry(i, e);
 
@@ -45,7 +45,7 @@ public class RetryWrap {
     }
 
     private static <T> T run(AtomicBoolean stop, WrapReturn<T> r) {
-        logger.info("calling run");
+        logger.debug("calling run");
         while (true) {
 
             hadleExceptions(stop);
@@ -75,7 +75,7 @@ public class RetryWrap {
     }
 
     public static void wrap(AtomicBoolean stop, final Wrap r) {
-        logger.info("Calling wrap");
+        logger.debug("Calling wrap");
         WrapReturn<Object> rr = new WrapReturn<Object>() {
 
             @Override
@@ -100,7 +100,7 @@ public class RetryWrap {
     }
 
     public static void checkConnection(HttpURLConnection c) throws IOException {
-        logger.info("calling check connection");
+        logger.debug("calling check connection");
         int code = c.getResponseCode();
         switch (code) {
             case HttpURLConnection.HTTP_OK:

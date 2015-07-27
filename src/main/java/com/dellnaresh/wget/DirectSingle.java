@@ -34,7 +34,7 @@ public class DirectSingle extends Direct {
      * @return return true - if all ok, false - if downloadVideo can not be restored.
      */
     public static boolean canResume(DownloadInfo downloadInfo, File targetFile) {
-        logger.info("Calling canResume method");
+        logger.debug("Calling canResume method");
         if (downloadInfo.getCount() != 0)
             return false;
 
@@ -48,7 +48,7 @@ public class DirectSingle extends Direct {
 
 
     void downloadPart(DownloadInfo info, AtomicBoolean stop, Runnable notify) throws IOException {
-        logger.info("Calling downloadPart method");
+        logger.debug("Calling downloadPart method");
         OutputStream fos = null;
         HttpURLConnection conn = null;
 
@@ -103,7 +103,7 @@ public class DirectSingle extends Direct {
 
     @Override
     public void download(final AtomicBoolean stop, final Runnable notify) {
-        logger.info("Calling download method");
+        logger.debug("Calling download method");
         downloadInfo.setState(URLInfo.States.DOWNLOADING);
         notify.run();
 

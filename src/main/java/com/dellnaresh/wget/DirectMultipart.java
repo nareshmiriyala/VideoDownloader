@@ -57,7 +57,7 @@ public class DirectMultipart extends Direct {
      * @param part
      */
     private void downloadPart(DownloadInfo.Part part, AtomicBoolean stop, Runnable notify) throws IOException {
-        logger.info("Downloading video part {}", part.getNumber());
+        logger.debug("Downloading video part {}", part.getNumber());
         RandomAccessFile fos = null;
         InputStream binaryreader = null;
         HttpURLConnection conn;
@@ -158,7 +158,7 @@ public class DirectMultipart extends Direct {
     }
 
     private void downloadWorker(final DownloadInfo.Part part, final AtomicBoolean stop, final Runnable notify) throws InterruptedException {
-        logger.info("Called Download Worker");
+        logger.debug("Called Download Worker");
         limitThreadPool.blockExecute(new Runnable() {
             @Override
             public void run() {
@@ -247,7 +247,7 @@ public class DirectMultipart extends Direct {
 
     @Override
     public void download(AtomicBoolean stop, Runnable notify) {
-        logger.info("Calling Download");
+        logger.debug("Calling Download");
         if(downloadInfo.getParts()==null){
             logger.error("Download parts can't be null");
             throw new DownloadMultipartError(downloadInfo);
@@ -292,7 +292,7 @@ public class DirectMultipart extends Direct {
                             interrupted = false;
                         }
                         if (interrupted) {
-                            logger.info("Multipart Download interrupted");
+                            logger.debug("Multipart Download interrupted");
                             throw new DownloadInterruptedError("isMultiPart all interrupted");
                         }
                     }
